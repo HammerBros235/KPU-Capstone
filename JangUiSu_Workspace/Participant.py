@@ -35,8 +35,9 @@ class Participant():  # 참여자
     def set_email(email):  # 이메일 String 대입
         self.email = email
 
-    def get_problems():  # 문제를 하나씩 띄워주는 기능 (미구현)
-        for problem in self.problems:
-            problem.show()
-            # 구현해야할 부분
+    def use_chat(chatBox, comment):
+        chat = Chat()
+        chat.name=name
+        # chat.comment = 컨트롤러와 연결 필요, ChatInput에서 값을 가져옴
+        chatBox.chatbox.append(chat)
 
