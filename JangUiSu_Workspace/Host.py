@@ -73,7 +73,7 @@ class host():  # 호스트
 
     def get_problems():  # 문제를 하나씩 띄워주는 기능 (미구현)
         for participant in participants:
-            for problem in self.problems:
+            for problem in participant.problems:
                 problem.show()
                 # 구현해야할 부분
 
