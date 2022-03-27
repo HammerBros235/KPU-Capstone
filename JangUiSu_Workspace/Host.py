@@ -56,8 +56,20 @@ class host():  # 호스트
         self.email = email
 # -------------------------------------------------------------------------------
 
+    def make_problem(self, title, importance, right, content, num, time, photo):  # 문제 만들기 및 수정
+        problem = Problem()
+        problem.title = title
+        problem.importance = importance
+        problem.right = right
+        problem.content = content
+        problem.num = num
+        problem.time = time
+        problem.photo = photo
+        return problem
+        
     def add_problem(problem):  # 참여자들이 풀 문제 추가하기
-        self.problems.append(problem)
+        for participant in participants:
+            participant.problems.append(problem)
 
     def get_problems():  # 문제를 하나씩 띄워주는 기능 (미구현)
         for problem in self.problems:
