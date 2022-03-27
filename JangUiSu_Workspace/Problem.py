@@ -13,14 +13,6 @@ class Problem():  # 문제
     time = "undecided"
     photo = "undecided"
 
-    def set_problem(self, title, importance, right, content, num, time, photo):  # 문제 만들기 및 수정
-        self.title = title
-        self.importance = importance
-        self.right = right
-        self.content = content
-        self.num = num
-        self.time = time
-        self.photo = photo
 
     def get_problem(self):  # 문제 가져오기
         return [self.title, self.importance, self.right, self.content, self.num, self.time, self.photo]
