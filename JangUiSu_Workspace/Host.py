@@ -32,9 +32,14 @@ class host():  # 호스트
     def del_problem(self, problem):  # 문제 삭제
         Problems.remove(problem)
 
-    def give_participation(self, participant, participation):  # 참여도 부여
+    def give_participation(self, participant, participation):  # 참여도 부여 (1명)
         participants[participants.index(
             participant)].participation += participation
+
+    def give_participation(self, participation):  # 참여도 부여 (지정된 학생들)
+        for participant in participants:
+            if participant.clicked == true:
+                participant.participation += participation
 # -------------------------------------------------------------------------------
 
     def set_name(name):  # 이름 String 대입
