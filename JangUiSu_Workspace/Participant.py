@@ -35,9 +35,6 @@ class Participant():  # 참여자
     def set_email(email):  # 이메일 String 대입
         self.email = email
 
-    def add_problem(problem):  # 참여자들이 풀 문제 추가하기
-        self.problems.append(problem)
-
     def get_problems():  # 문제를 하나씩 띄워주는 기능 (미구현)
         for problem in self.problems:
             problem.show()
