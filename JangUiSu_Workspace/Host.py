@@ -72,9 +72,10 @@ class host():  # 호스트
             participant.problems.append(problem)
 
     def get_problems():  # 문제를 하나씩 띄워주는 기능 (미구현)
-        for problem in self.problems:
-            problem.show()
-            # 구현해야할 부분
+        for participant in participants:
+            for problem in self.problems:
+                problem.show()
+                # 구현해야할 부분
 
 
 # In[ ]:
