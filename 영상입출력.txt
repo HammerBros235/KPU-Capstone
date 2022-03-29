@@ -1,0 +1,16 @@
+import cv2
+cap = cv2.VideoCapture('vide.mp4")
+
+while cap.isOpened(): #동영상 파일이 잘열린지 확인
+	ret, frame = cap.read() #성공여부
+	if not ret:
+	   print('더 이상 가져올 프레임이 없음')
+	   break
+
+	cv2.imshow('video', frame)
+	if cv2.waitKey(1) == ord('q'): #q 누르면 종료
+	   print('사용자 입력에 의해 종료합니다')
+	   break
+
+cap.release() #자원free
+cv2.destroyAllWindows() #창닫기
