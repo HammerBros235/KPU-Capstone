@@ -1,3 +1,7 @@
+## TODO
+- Need to ask what format the coordinates come as.
+- Is vector necessary? Or just detecting suddent movements enough?
+
 ## Main
 - 수행계획서: https://docs.google.com/document/d/1HsjvmisM-qGdgWI6HiAXHPWDTL0hCVT5uVQtCxlRNeM/edit
 
