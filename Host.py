@@ -8,7 +8,7 @@ import Participant
 import Problem
 
 
-class host():  # 호스트
+class Host():  # 호스트
     name = "Anonymous"
     exit = False  # 자리비움 여부
     clicked = False  # 지정여부
