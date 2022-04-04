@@ -1,5 +1,5 @@
 ## TODO
-- Need to ask what format the coordinates come as.
+- Need to ask what format the coordinates come as. -> w,x,w,h
 - Is vector necessary? Or just detecting suddent movements enough?
 
 ## Main
