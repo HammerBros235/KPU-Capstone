@@ -472,7 +472,7 @@ class ShowVideo(QObject):
                 roi_color = image[y:y+h, x:x+w] #눈,입등을 표시할 때 이용
                 #영상에 image 값을 
                 
-            cv2.imshow('video',image) # video라는 이름으로 출력
+            #cv2.imshow('얼굴인식용',image) 
             k = cv2.waitKey(1) & 0xff #time값이 0이면 무한 대기, waitKey는 키가 입력 받아 질때까지 기다리는 시간을 의미한다.
             #FF는 끝의 8bit만을 이용한다는 뜻으로 ASCII 코드의 0~255값만 이용하겠다는 의미로 해석됨. (NumLock을 켰을때도 마찬가지)
 
