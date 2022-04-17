@@ -8,6 +8,5 @@
 
 부가기능쪽은 채팅 기능 및 문제 등록,삭제,수정,미리보기를 1인 기준으로 성공했습니다. (2인 이상은 서버 필요)
 
-실행파일: https://drive.google.com/file/d/1upXUgTw7c4qAGg25w5BD0a8MLj0St1Kb/view?usp=sharing
+실행파일: https://drive.google.com/file/d/16p9vXPAzfjX_dv8AoUfGVcnM9JAMRymo/view?usp=sharing
 
-![3차설계 진행중1](https://user-images.githubusercontent.com/96420192/161419614-9fbc49e0-ac67-4c59-93d2-d42c9719f5d5.png)
