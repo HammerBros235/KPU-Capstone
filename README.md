@@ -1,11 +1,11 @@
-## TODO
-- Need to ask what format the coordinates come as. -> w,x,w,h
-- Is vector necessary? Or just detecting suddent movements enough?
+## 할 일
+# Ctrl+F, TODO. 작업해야 할 곳들에 TODO로 주석 달아놈.
+- 1sec_iterator.py: 매 초마다 새로운 좌표를 받아야함. pB=Point(x,y,w,h)에 입력.
 
 ## Main
 - 수행계획서: https://docs.google.com/document/d/1HsjvmisM-qGdgWI6HiAXHPWDTL0hCVT5uVQtCxlRNeM/edit
 
-## Detailed Designs in docs
+## 이전 계획도
 ##### 참여도 계산
 - [ ] 얼굴 인식: 눈, 코, 입, 특히 동공의 위치를 알아냄. 이를 통해 얼굴의 극좌표를 계산.
   - Ask which format they come in
