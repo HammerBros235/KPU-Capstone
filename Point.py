@@ -1,6 +1,6 @@
 import numpy as np
 
-#Coordinates
+#좌표
 class Point:
     def __init__(self, x=0, y=0, w=0, h=0):
         self.x = x
@@ -12,11 +12,11 @@ class Point:
     def __str__(self):
         return '(x={0}, y={1}, w={2}, h={3})'.format(self.x, self.y, self.w, self.h)
     
-    #necessary? pA+pB
+    #pA+pB
     def __add__(self, other):
         return self.x + other.x, self.y + other.y, self.w + other.w, self.h + other.h
     
-    #necessary? pA-pB
+    #pA-pB
     def __sub__(self, other):
         return self.x - other.x, self.y - other.y, self.w - other.w, self.h - other.h
     
@@ -31,20 +31,17 @@ class Point:
                    self.w if pA.w == other.w else other.w,
                    self.h if pA.h == other.h else other.h)
        
-        #div/0 error prevention. Returns self for later pDiff calculation.
+        #div/0 에러 방지. 곧 다시 불릴 것을 대비하여 True면 전 수치를 이용.
         if pB.x == 0 or pB.y == 0 or pB.w == 0 or pB.h == 0:
             return self
         else:
             return pA.x / pB.x, pA.y / pB.y, pA.w / pB.w, pA.h / pB.h
 
-#Screen resolution
-#TODO: getter setter?
-#TODO: Will the range of the values be different if the screen size if different?
-##ImgProcess team might take care.
+#화면크기: 720p
 pScreenX = 1280
 pScreenY = 720
 
-#returns difference% in Point type.
+#차이% 계산
 def pDiff(p1, p2):
     pD = np.multiply(100, (p1 - p2))
     return Point(pD[0]/pScreenX, pD[1]/pScreenY, pD[2]/pScreenX, pD[3]/pScreenY)
