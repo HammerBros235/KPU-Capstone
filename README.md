@@ -1,6 +1,9 @@
 ## 할 일
-# Ctrl+F, TODO. 작업해야 할 곳들에 TODO로 주석 달아놈.
+##### Ctrl+F, TODO. 작업해야 할 곳들에 TODO로 주석 달아놈.
 - 1sec_iterator.py: 매 초마다 새로운 좌표를 받아야함. pB=Point(x,y,w,h)에 입력.
+
+
+---
 
 ## Main
 - 수행계획서: https://docs.google.com/document/d/1HsjvmisM-qGdgWI6HiAXHPWDTL0hCVT5uVQtCxlRNeM/edit
