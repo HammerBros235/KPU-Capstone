@@ -1,6 +1,7 @@
 ## 할 일
 ##### Ctrl+F, TODO. 작업해야 할 곳들에 TODO로 주석 달아놈.
-- 1sec_iterator.py: 매 초마다 새로운 좌표를 받아야함. pB=Point(x,y,w,h)에 입력.
+- 매 초마다 새로운 좌표를 받아야함. 1sec_iterator.py: pB=Point(x,y,w,h)에 입력.
+- 알고리즘 출력을 GUI에 출력.
 
 ## 파일 설명
 - Point.py: 좌표 클래스
