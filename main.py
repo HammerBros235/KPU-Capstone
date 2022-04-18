@@ -507,7 +507,7 @@ class ImageViewer(QWidget):
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
         painter.drawImage(0, 0, self.image)
-        painter.drawRect(x2,y2,x2+w2,y2+h2)
+        painter.drawRect(x2,y2,w2,h2)
         self.image = QtGui.QImage()
         
 
