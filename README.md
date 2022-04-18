@@ -14,7 +14,7 @@
 ## Main
 - 수행계획서: https://docs.google.com/document/d/1HsjvmisM-qGdgWI6HiAXHPWDTL0hCVT5uVQtCxlRNeM/edit
 
-## 이전 계획도
+### 이전 계획도
 ##### 참여도 계산
 - [ ] 얼굴 인식: 눈, 코, 입, 특히 동공의 위치를 알아냄. 이를 통해 얼굴의 극좌표를 계산.
   - Ask which format they come in
