@@ -459,16 +459,13 @@ class ShowVideo(QObject):
                 # 중복적으로 발생할 수 있게 된다.
                 minSize=(20, 20))
             for (x,y,w,h) in faces: #좌표 값과 rectangular의 width height를 받게 된다.
-                #x,y값은 rectangular가 시작하는 지점의 좌표
-                #원본 이미지에 얼굴의 위치를 표시하는 작업을 함.
-                #for문을 돌리는 이유는 여러 개가 검출 될 수 있기 때문에 이용함
+                global x2,y2,w2,h2
+                x2,y2,w2,h2 = x,y,w,h
+                 #x,y값은 rectangular가 시작하는 지점의 좌표
+                 #원본 이미지에 얼굴의 위치를 표시하는 작업을 함.
+                 #for문을 돌리는 이유는 여러 개가 검출 될 수 있기 때문에 이용함
                 cv2.rectangle(image,(x,y),(x+w,y+h),(255,77,10),2) #안의 값은 정사각형의 테두리색 RGB값
                 coordinate_info.setText('X: '+str(x)+' Y: '+str(y))
-                
-                painter = QPainter(image_viewer1.image)
-                painter.drawRect(x,y,x+w,y+h)
-                image_viewer1.image = QtGui.QImage()
-                
                 #다른 부분, 얼굴 안에 들어있는 눈과 입 등을 검출할 때 얼굴 안에서 검출하는 용도
                 roi_gray = color_swapped_image[y:y+h, x:x+w] #눈,입을 검출할 때 이용
                 roi_color = image[y:y+h, x:x+w] #눈,입등을 표시할 때 이용
@@ -499,6 +496,9 @@ class ShowVideo(QObject):
 
 
 class ImageViewer(QWidget):
+    global x2,y2,w2,h2
+    x2,y2,w2,h2 = 0,0,300,300
+    
     def __init__(self, parent=None):
         super(ImageViewer, self).__init__(parent)
         self.image = QtGui.QImage()
@@ -507,7 +507,9 @@ class ImageViewer(QWidget):
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
         painter.drawImage(0, 0, self.image)
+        painter.drawRect(x2,y2,x2+w2,y2+h2)
         self.image = QtGui.QImage()
+        
 
     def initUI(self):
         self.setWindowTitle('Test')
