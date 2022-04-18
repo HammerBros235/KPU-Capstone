@@ -497,7 +497,7 @@ class ShowVideo(QObject):
 
 class ImageViewer(QWidget):
     global x2,y2,w2,h2
-    x2,y2,w2,h2 = 0,0,300,300
+    x2,y2,w2,h2 = 0,0,0,0
     
     def __init__(self, parent=None):
         super(ImageViewer, self).__init__(parent)
