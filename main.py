@@ -473,7 +473,7 @@ class ShowVideo(QObject):
             
             
                 
-            cv2.imshow('recognition',image) 
+            #cv2.imshow('recognition',image) 
             k = cv2.waitKey(1) & 0xff #time값이 0이면 무한 대기, waitKey는 키가 입력 받아 질때까지 기다리는 시간을 의미한다.
             #FF는 끝의 8bit만을 이용한다는 뜻으로 ASCII 코드의 0~255값만 이용하겠다는 의미로 해석됨. (NumLock을 켰을때도 마찬가지)
 
