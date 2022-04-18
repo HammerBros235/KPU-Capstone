@@ -442,6 +442,7 @@ class ShowVideo(QObject):
         global image
         faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
         run_video = True
+        global coordinate_info
         while run_video: #이상태님 코드 결합
             ret, image = self.camera.read()
             color_swapped_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -462,17 +463,20 @@ class ShowVideo(QObject):
                 #원본 이미지에 얼굴의 위치를 표시하는 작업을 함.
                 #for문을 돌리는 이유는 여러 개가 검출 될 수 있기 때문에 이용함
                 cv2.rectangle(image,(x,y),(x+w,y+h),(255,77,10),2) #안의 값은 정사각형의 테두리색 RGB값
+                coordinate_info.setText('X: '+str(x)+' Y: '+str(y))
                 
-                """painter = QPainter(image_viewer1.image)
+                painter = QPainter(image_viewer1.image)
                 painter.drawRect(x,y,x+w,y+h)
-                image_viewer1.image = QtGui.QImage()"""
+                image_viewer1.image = QtGui.QImage()
                 
                 #다른 부분, 얼굴 안에 들어있는 눈과 입 등을 검출할 때 얼굴 안에서 검출하는 용도
                 roi_gray = color_swapped_image[y:y+h, x:x+w] #눈,입을 검출할 때 이용
                 roi_color = image[y:y+h, x:x+w] #눈,입등을 표시할 때 이용
                 #영상에 image 값을 
+            
+            
                 
-            cv2.imshow('얼굴인식용',image) 
+            cv2.imshow('recognition',image) 
             k = cv2.waitKey(1) & 0xff #time값이 0이면 무한 대기, waitKey는 키가 입력 받아 질때까지 기다리는 시간을 의미한다.
             #FF는 끝의 8bit만을 이용한다는 뜻으로 ASCII 코드의 0~255값만 이용하겠다는 의미로 해석됨. (NumLock을 켰을때도 마찬가지)
 
@@ -568,6 +572,12 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         exit_button.resize(100, 100)
         exit_button.move(240, 600)
         exit_button.clicked.connect(self.exit_set)  # 버튼을 함수와 연결
+        
+        global coordinate_info
+        coordinate_info = QLabel('X: '+'Y: ',
+                                      self)
+        coordinate_info.move(500, 600)
+        coordinate_info.resize(300,30)
 
 # -------------------------------------------------------------
 # 채팅창을 위한 부분 (스크롤)
