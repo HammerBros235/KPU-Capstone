@@ -1,4 +1,3 @@
-import numpy as np
 
 #좌표
 class Point:
@@ -37,11 +36,3 @@ class Point:
         else:
             return pA.x / pB.x, pA.y / pB.y, pA.w / pB.w, pA.h / pB.h
 
-#화면크기: 720p
-pScreenX = 1280
-pScreenY = 720
-
-#차이% 계산
-def pDiff(p1, p2):
-    pD = np.multiply(100, (p1 - p2))
-    return Point(pD[0]/pScreenX, pD[1]/pScreenY, pD[2]/pScreenX, pD[3]/pScreenY)
