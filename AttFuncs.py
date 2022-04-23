@@ -13,10 +13,12 @@ def shakiness(pD):
     #정도 조정. 임의적으로 10%으로 정함.
     limit = 0.01 * 10
     #print("[pDiff] " + str(pD))
-    if (abs(pD.x) > limit or abs(pD.y) > limit or abs(pD.w) > limit or abs(pD.h) > limit):
-        return "over"
-        #print("[Shakiness] 흔들림!")
+    if (pD !=None):
+        if (abs(pD.x) > limit or abs(pD.y) > limit or abs(pD.w) > limit or abs(pD.h) > limit):
+            return "over"
+            #print("[Shakiness] 흔들림!")
+        else:
+            return "under"
+            #print("[Shakiness] OK...")
     else:
-        return "under"
-        #print("[Shakiness] OK...")
-
+		return "None"
