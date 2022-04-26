@@ -6,7 +6,9 @@
 
 
 
-부가기능쪽은 채팅 기능 및 문제 등록,삭제,수정,미리보기를 1인 기준으로 성공했습니다. (2인 이상은 서버 필요)
+현재 실행파일은 eye~xml파일이 입도 같이 인식을 하는 것 같습니다.
+환경차이일지도 모르겠지만, 아직은 인식률이 부족하다고 느낍니다. 이에 대해서는 저도 계속 함께 찾아보겠습니다.
+버벅임 문제는 해결했습니다. 
 
-실행파일: https://drive.google.com/file/d/1L4_YomaeweruWnXPFTsfN17lRPZaIcbs/view?usp=sharing
+실행파일: https://drive.google.com/file/d/1JmkOmyz24qb3ZG_qqoAdU3-qnmE1erYb/view?usp=sharing
 
