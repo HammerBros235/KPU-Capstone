@@ -7,3 +7,5 @@
 - 웹캠 + 얼굴 인식: https://techvidvan.com/tutorials/face-recognition-project-python-opencv/
 - 파이썬 gui 관련 참조: https://wikidocs.net/21934
 - 분산 및 표준편차 등등 통계시 필요한 것들 참조: https://needneo.tistory.com/113
+- 시선인식 참조: https://wiserloner.tistory.com/1099
+
