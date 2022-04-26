@@ -2,7 +2,9 @@
 
 import cv2
 import sys
+from AttFuncs import *
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
 from PyQt5.QtCore import *
 from PyQt5 import QtGui
 from Chat import *  # 채팅 구현 클래스 import
@@ -10,7 +12,7 @@ from ChatBox import *  # 채팅창 구현 클래스 import
 from Host import *  # 호스트 구현 클래스 import
 from Participant import *  # 참여자 구현 클래스 import
 from Problem import *  # 문제 구현 클래스 import
-from PyQt5.QtGui import QPainter, QBrush, QPen
+from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 
 
 class problem_resister(QWidget):  # 문제 등록 창
@@ -425,7 +427,6 @@ class participation_give(QMainWindow):  # 참여도 부여 윈도우
 class ShowVideo(QObject):
 
     flag = 0
-    
 
     camera = cv2.VideoCapture(0)
 
@@ -439,56 +440,75 @@ class ShowVideo(QObject):
 
     @pyqtSlot()
     def startVideo(self):
-        global image
-        faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-        run_video = True
-        global coordinate_info
-        while run_video: #이상태님 코드 결합
-            ret, image = self.camera.read()
-            color_swapped_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            faces = faceCascade.detectMultiScale(  # 이미지에서 얼굴을 검출
-                color_swapped_image,  # grayscale로 이미지 변환한 원본.
-                scaleFactor=1.2,  # 이미지 피라미드에 사용하는 scalefactor
-                # scale 안에 들어가는 이미지의 크기가 1.2씩 증가 즉 scale size는 그대로
-                # 이므로 이미지가 1/1.2 씩 줄어서 scale에 맞춰지는 것이다.
-                # 최소 가질 수 있는 이웃 3~6사이의 값을 넣어야 detect가 더 잘된다고 한다.
-                minNeighbors=3,
-                # Neighbor이 너무 크면 알맞게 detect한 rectangular도 지워버릴 수 있으며,
-                # 너무 작으면 얼굴이 아닌 여러개의 rectangular가 생길 수 있다.
-                # 만약 이 값이 0이면, scale이 움직일 때마다 얼굴을 검출해 내는 rectangular가 한 얼굴에
-                # 중복적으로 발생할 수 있게 된다.
-                minSize=(20, 20))
-            for (x,y,w,h) in faces: #좌표 값과 rectangular의 width height를 받게 된다.
-                global x2,y2,w2,h2
-                x2,y2,w2,h2 = x,y,w,h
-                 #x,y값은 rectangular가 시작하는 지점의 좌표
-                 #원본 이미지에 얼굴의 위치를 표시하는 작업을 함.
-                 #for문을 돌리는 이유는 여러 개가 검출 될 수 있기 때문에 이용함
-                cv2.rectangle(image,(x,y),(x+w,y+h),(255,77,10),2) #안의 값은 정사각형의 테두리색 RGB값
-                coordinate_info.setText('X: '+str(x)+' Y: '+str(y))
-                #다른 부분, 얼굴 안에 들어있는 눈과 입 등을 검출할 때 얼굴 안에서 검출하는 용도
-                roi_gray = color_swapped_image[y:y+h, x:x+w] #눈,입을 검출할 때 이용
-                roi_color = image[y:y+h, x:x+w] #눈,입등을 표시할 때 이용
-                #영상에 image 값을 
-            
-            
-                
-            #cv2.imshow('recognition',image) 
-            k = cv2.waitKey(1) & 0xff #time값이 0이면 무한 대기, waitKey는 키가 입력 받아 질때까지 기다리는 시간을 의미한다.
-            #FF는 끝의 8bit만을 이용한다는 뜻으로 ASCII 코드의 0~255값만 이용하겠다는 의미로 해석됨. (NumLock을 켰을때도 마찬가지)
 
-            qt_image1 = QtGui.QImage(color_swapped_image.data,
+        def detect(gray, frame):
+            # 아래줄은 CascadeClassifier을 이용해서 얼굴을 인식
+            faces = faceCascade.detectMultiScale(gray, scaleFactor=1.05, minNeighbors=5, minSize=(
+                100, 100), flags=cv2.CASCADE_SCALE_IMAGE)
+    # 얼굴에 사각형을 테두리화 하고 눈을 탐색
+            for(x, y, w, h) in faces:
+                global x2, y2, w2, h2, points, point_index, pD
+                x2, y2, w2, h2 = x, y, w, h
+                # 얼굴 : 이미지 프레임의 x,y 에서 시작함, (x+넓이, y+길이)까지의 사각형 (a,b,c)는 테두리 색 2는 테두리굵기
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+
+                face_gray = gray[y:y + h, x:x + w]
+                face_color = frame[y:y + h, x:x + w]
+
+                # 아래는 얼굴영역 안에서 눈을 찾는것
+                eyes = eyeCascade.detectMultiScale(face_gray, 1.1, 3)
+                first_eye = True
+                # 눈: 이미지 프레임의 x,y에서 시작함, (x+넓이, y+길이)까지의 사각형 (a,b,c)는 테두리 색 2는 테두리굵기
+                for (ex, ey, ew, eh) in eyes:
+                    if first_eye == True:
+                        global ex2, ey2, ew2, eh2
+                        ex2, ey2, ew2, eh2 = x+ex, y+ey, ew, eh
+                        points.append([ex, ey, ew, eh])
+                        if (point_index > 0):
+                            p1 = Point(points[point_index-1][0], points[point_index-1]
+                                       [1], points[point_index-1][2], points[point_index-1][3])
+                            p2 = Point(points[point_index][0], points[point_index]
+                                       [1], points[point_index][2], points[point_index][3])
+                            pD = pDiff(p1, p2)
+                        point_index += 1
+                        coordinate_info.setText(
+                            'X: '+str(x)+' Y: '+str(y)+' W: '+str(w)+' H: '+str(h) + "\n pD: "+str(pD)+"\n shakiness: "+shakiness(pD))
+                        first_eye = False
+
+                #cv2.rectangle(face_color, (ex, ey),(ex + ew, ey + eh), (0, 255, 0), 2)
+            
+            qt_image1 = QtGui.QImage(gray.data,
                                      self.width,
                                      self.height,
-                                     color_swapped_image.strides[0],
+                                     gray.strides[0],
                                      QtGui.QImage.Format_RGB888)
             self.VideoSignal1.emit(qt_image1)
             push_button1.hide()
-            image_viewer1.move(5, 20)
+            #image_viewer1.move(5, 20)
 
             loop = QEventLoop()
             QTimer.singleShot(25, loop.quit)  # 25 ms
             loop.exec_()
+            
+            return frame
+
+        global image
+        video_capture = cv2.VideoCapture(0)
+        faceCascade = cv2.CascadeClassifier(
+            'haarcascade_frontalface_default.xml')
+        eyeCascade = cv2.CascadeClassifier('haarcascade_eye.xml')
+
+        global coordinate_info
+
+        while True:
+            _, frame = video_capture.read()  # 캠의 화면을 이미지로 자자름
+            gray = cv2.cvtColor(frame, cv2.cv2.COLOR_BGR2RGB)
+            canvas = detect(gray, frame)
+
+            k = cv2.waitKey(1) & 0xff
+            # FF는 끝의 8bit만을 이용한다는 뜻으로 ASCII 코드의 0~255값만 이용하겠다는 의미로 해석됨. (NumLock을 켰을때도 마찬가지)
+
+            
 
     @pyqtSlot()
     def canny(self):
@@ -496,20 +516,23 @@ class ShowVideo(QObject):
 
 
 class ImageViewer(QWidget):
-    global x2,y2,w2,h2
-    x2,y2,w2,h2 = 0,0,0,0
-    
+    global x2, y2, w2, h2, ex2, ey2, ew2, eh2
+    x2, y2, w2, h2, ex2, ey2, ew2, eh2 = 1, 1, 1, 1, 100, 100, 100, 100
+
     def __init__(self, parent=None):
         super(ImageViewer, self).__init__(parent)
         self.image = QtGui.QImage()
         self.setAttribute(Qt.WA_OpaquePaintEvent)
 
-    def paintEvent(self, event):
+    def paintEvent(self, event):  # 실제 사각형을 그리는 함수, 이벤트를 받을때마다 동작하는 것 같습니다.
+        # 아직 고쳐햐할 부분입니다
         painter = QtGui.QPainter(self)
+        painter.setBrush(QColor(25, 0, 90, 10))
         painter.drawImage(0, 0, self.image)
-        painter.drawRect(x2,y2,w2,h2)
+        painter.drawRect(x2, y2, w2, h2)
+        painter.setBrush(QColor(200, 0, 0, 10))
+        painter.drawRect(ex2, ey2, ew2, eh2)
         self.image = QtGui.QImage()
-        
 
     def initUI(self):
         self.setWindowTitle('Test')
@@ -536,6 +559,10 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
     def initUI(self):
 
         global chatBox, host, participants, myUI, problems, problem_num, init, mode, checkedP, isExit
+        global points, point_index, pD
+        points = []
+        point_index = 0
+        pD = pDiff(Point(100, 100, 100, 100), Point(200, 200, 150, 150))
 
         chatBox = ChatBox()  # 채팅 박스
         host = Host()  # 호스트
@@ -573,13 +600,18 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         exit_button = QPushButton('자리비움\n(호스트용)', self)  # 자리비움 버튼
         exit_button.resize(100, 100)
         exit_button.move(240, 600)
+        global exit_host
+        exit_host = QLabel('호스트) 자리비움 비활성화 상태', self)  # 자리비움 상황
+        exit_host.resize(400, 30)
+        exit_host.move(500, 650)
+        exit_button.move(240, 600)
         exit_button.clicked.connect(self.exit_set)  # 버튼을 함수와 연결
-        
+
         global coordinate_info
-        coordinate_info = QLabel('X: '+'Y: ',
-                                      self)
+        coordinate_info = QLabel('X: '+'Y: '+'W: '+'H: ',
+                                 self)
         coordinate_info.move(500, 600)
-        coordinate_info.resize(300,30)
+        coordinate_info.resize(300, 40)
 
 # -------------------------------------------------------------
 # 채팅창을 위한 부분 (스크롤)
@@ -628,13 +660,17 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
     isExit = False  # 호스트의 자리를 비운 상태 초기화
 
     def exit_set(self):  # 자리비움 설정
-
+        global exit_host
         if myUI.isExit:
             myUI.isExit = False
+            exit_host.setText("호스트) 자리비움 비활성화 상태 -> 전체 학생 자리비움 해제")
+
             for participant in participants:
                 participant.exit = False
         else:
             myUI.isExit = True
+            exit_host.setText("호스트) 자리비움 활성화 상태 -> 전체 학생 자리비움 ")
+
             for participant in participants:
                 participant.exit = True
 
@@ -655,7 +691,12 @@ if __name__ == '__main__':
 
     vertical_layout = QVBoxLayout()
     horizontal_layout = QHBoxLayout()
-    horizontal_layout.addWidget(image_viewer1)
+    
+    horizontal_layout.setAlignment(Qt.AlignTop)
+    horizontal_layout.addStretch(0)
+    horizontal_layout.addWidget(image_viewer1 )
+    horizontal_layout.addStretch(1)
+
     vertical_layout.addLayout(horizontal_layout)
     vertical_layout.addWidget(push_button1)
 
