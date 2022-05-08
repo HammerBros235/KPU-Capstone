@@ -1,3 +1,5 @@
+#credits: https://towardsdatascience.com/plotting-live-data-with-matplotlib-d871fac7500b
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
