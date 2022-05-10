@@ -1,9 +1,12 @@
 ## Notes (220510)
 - is_center -> %/All (+ >= pivot%)
   - Live update graphs. (like stocks)
+    - matplotlib? (has pause option)
 - NOT is_center for certain duration -> note.
 - Pause recording.
   - But keep the graph running.
+
+-> Graph: line graph of Average of (0,1)
 
 - Run multiple instances.
   - Rank them.
@@ -18,12 +21,12 @@
 - AttFuncs.py: 참여도 계산 함수들
 - 1sec_iterator.py: 1초 반복 + 그에 들어갈 코드
 - live_stats.py: 그래프 
+- 
 ---
 
 ## 이전 계획도
 ##### 참여도 계산
 - [X] 얼굴 인식: 눈, 코, 입, 특히 동공의 위치를 알아냄. 이를 통해 얼굴의 극좌표를 계산.
-  - Ask which format they come in
 - [X] 시선 벡터: 위 극좌표에서 알아낸 얼굴의 각도와 동공의 위치를 기반으로 시선이 어디를 향하는지 계산.
   - Add to list every sec.
 - [X] 시선 분산: 시선의 위치를 실시간으로 기록하여 시선 분산도를 계산.
@@ -36,6 +39,4 @@
 - [ ] 자리 비움: 자리를 비울 경우나 기타 경우에 참여도 기록을 일시정지. (눈 깜박임부터 조는 행위까지 다룸.)
 ##### 참여도 집계
 - [ ] 군집화: 참여도 순 클라이언트를 나열하여 상위 및 하위 군집을 가려냄.
-  - 4th Report
 - [ ] 기록: 이 지표는 기록이 되고, 클라이언트 별, 과목 별, 시간대 별, 호스트 별로 필터링 함.
-  - 4th Report
