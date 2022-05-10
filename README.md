@@ -1,28 +1,34 @@
-## 할 일
-##### Ctrl+F, TODO. 작업해야 할 곳들에 TODO로 주석 달아놈.
-- 매 초마다 새로운 좌표를 받아야함. 1sec_iterator.py: pB=Point(x,y,w,h)에 입력.
-- 알고리즘 출력을 GUI에 출력.
+## Notes (220510)
+- is_center -> %/All (+ >= pivot%)
+  - Live update graphs. (like stocks)
+- NOT is_center for certain duration -> note.
+- Pause recording.
+  - But keep the graph running.
+
+- Run multiple instances.
+  - Rank them.
+    - Put % to a dict, sort, percentile, graph.
+
+- class info. (consider in the future)
+
+---
 
 ## 파일 설명
 - Point.py: 좌표 클래스
 - AttFuncs.py: 참여도 계산 함수들
 - 1sec_iterator.py: 1초 반복 + 그에 들어갈 코드
-
-
+- live_stats.py: 그래프 
 ---
 
-## Main
-- 수행계획서: https://docs.google.com/document/d/1HsjvmisM-qGdgWI6HiAXHPWDTL0hCVT5uVQtCxlRNeM/edit
-
-### 이전 계획도
+## 이전 계획도
 ##### 참여도 계산
-- [ ] 얼굴 인식: 눈, 코, 입, 특히 동공의 위치를 알아냄. 이를 통해 얼굴의 극좌표를 계산.
+- [X] 얼굴 인식: 눈, 코, 입, 특히 동공의 위치를 알아냄. 이를 통해 얼굴의 극좌표를 계산.
   - Ask which format they come in
-- [ ] 시선 벡터: 위 극좌표에서 알아낸 얼굴의 각도와 동공의 위치를 기반으로 시선이 어디를 향하는지 계산.
+- [X] 시선 벡터: 위 극좌표에서 알아낸 얼굴의 각도와 동공의 위치를 기반으로 시선이 어디를 향하는지 계산.
   - Add to list every sec.
-- [ ] 시선 분산: 시선의 위치를 실시간으로 기록하여 시선 분산도를 계산.
+- [X] 시선 분산: 시선의 위치를 실시간으로 기록하여 시선 분산도를 계산.
   - List %
-- [ ] 화면 위치: 시선이 가장 많이 분포된 지점을 화면의 위치로 설정. (화면 앞에서 화면에 눈길이 가지 않기가 힘든 점과 강의 길이가 최소 50분인 점을 토대.)	
+- [X] 화면 위치: 시선이 가장 많이 분포된 지점을 화면의 위치로 설정. (화면 앞에서 화면에 눈길이 가지 않기가 힘든 점과 강의 길이가 최소 50분인 점을 토대.)	
   - List % Highest
 ##### 참여도 활용
 - [ ] 시선 고정률: 위를 토대로 화면에 얼마나 집중해 있나 가늠이 가능함.
