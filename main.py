@@ -14,6 +14,21 @@ from Participant import *  # 참여자 구현 클래스 import
 from Problem import *  # 문제 구현 클래스 import
 from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 
+from matplotlib.backends.backend_qt5agg import FigureCanvas as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.animation import FuncAnimation
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+import psutil
+import collections
+from my_function import *
+from gaze_tracking import GazeTracking
+
+
+QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+
 
 class problem_resister(QWidget):  # 문제 등록 창
     def __init__(self):
@@ -420,9 +435,46 @@ class participation_give(QMainWindow):  # 참여도 부여 윈도우
         self.show()  # UI 보여주기
 
 
+class graph(QMainWindow):  # 그래프 윈도우
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('graph_win')
+        self.setGeometry(100, 200, 900, 700)  # 위치, 크기 조정
+        
+        self.main_widget = QWidget()
+        vbox = QVBoxLayout(self.main_widget)
+        self.setCentralWidget(self.main_widget)
+
+
+#---------------------------------------
+        cpu = collections.deque(np.zeros(10))
+
+        ram = collections.deque(np.zeros(10))
+
+        self.fig = plt.figure(figsize=(12, 6), facecolor='#DEDEDE')
+        self.canvas = FigureCanvasQTAgg(self.fig)
+        
+        self.ax = plt.subplot(121)
+        self.ax1 = plt.subplot(122)
+
+        self.ax.set_facecolor('#DEDEDE')
+        self.ax1.set_facecolor('#DEDEDE')
+        
+        vbox.addWidget(self.canvas)
+        self.addToolBar(NavigationToolbar(self.canvas, self))
+
+        animation = FuncAnimation(plt.gcf(), my_function, interval=1000)
+#---------------------------------------
+        self.ani = animation
+        self.canvas.draw()
+        self.show()
+
 # --------------------------------------------------------
+
 # 비디오 보여주는 클래스, 전체적으로 잘 몰라서 주석을 달 수 없습니다..
 # 다만 길이가 길진 않습니다.
+
 
 class ShowVideo(QObject):
 
@@ -442,41 +494,8 @@ class ShowVideo(QObject):
     def startVideo(self):
 
         def detect(gray, frame):
-            # 아래줄은 CascadeClassifier을 이용해서 얼굴을 인식
-            faces = faceCascade.detectMultiScale(gray, scaleFactor=1.05, minNeighbors=5, minSize=(
-                100, 100), flags=cv2.CASCADE_SCALE_IMAGE)
-    # 얼굴에 사각형을 테두리화 하고 눈을 탐색
-            for(x, y, w, h) in faces:
-                global x2, y2, w2, h2, points, point_index, pD
-                x2, y2, w2, h2 = x, y, w, h
-                # 얼굴 : 이미지 프레임의 x,y 에서 시작함, (x+넓이, y+길이)까지의 사각형 (a,b,c)는 테두리 색 2는 테두리굵기
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-
-                face_gray = gray[y:y + h, x:x + w]
-                face_color = frame[y:y + h, x:x + w]
-
-                # 아래는 얼굴영역 안에서 눈을 찾는것
-                eyes = eyeCascade.detectMultiScale(face_gray, 1.1, 3)
-                first_eye = True
-                # 눈: 이미지 프레임의 x,y에서 시작함, (x+넓이, y+길이)까지의 사각형 (a,b,c)는 테두리 색 2는 테두리굵기
-                for (ex, ey, ew, eh) in eyes:
-                    if first_eye == True:
-                        global ex2, ey2, ew2, eh2
-                        ex2, ey2, ew2, eh2 = x+ex, y+ey, ew, eh
-                        points.append([ex, ey, ew, eh])
-                        if (point_index > 0):
-                            p1 = Point(points[point_index-1][0], points[point_index-1]
-                                       [1], points[point_index-1][2], points[point_index-1][3])
-                            p2 = Point(points[point_index][0], points[point_index]
-                                       [1], points[point_index][2], points[point_index][3])
-                            pD = pDiff(p1, p2)
-                        point_index += 1
-                        coordinate_info.setText(
-                            'X: '+str(x)+' Y: '+str(y)+' W: '+str(w)+' H: '+str(h) + "\n pD: "+str(pD)+"\n shakiness: "+shakiness(pD))
-                        first_eye = False
-
-                #cv2.rectangle(face_color, (ex, ey),(ex + ew, ey + eh), (0, 255, 0), 2)
             
+
             qt_image1 = QtGui.QImage(gray.data,
                                      self.width,
                                      self.height,
@@ -484,12 +503,12 @@ class ShowVideo(QObject):
                                      QtGui.QImage.Format_RGB888)
             self.VideoSignal1.emit(qt_image1)
             push_button1.hide()
-            #image_viewer1.move(5, 20)
+            # image_viewer1.move(5, 20)
 
             loop = QEventLoop()
             QTimer.singleShot(25, loop.quit)  # 25 ms
             loop.exec_()
-            
+
             return frame
 
         global image
@@ -499,16 +518,40 @@ class ShowVideo(QObject):
         eyeCascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 
         global coordinate_info
-
+        
+        gaze = GazeTracking()
         while True:
             _, frame = video_capture.read()  # 캠의 화면을 이미지로 자자름
+            
+            gaze.refresh(frame)
+            frame = gaze.annotated_frame()
+            
+            text = ""
+            if gaze.is_blinking():
+                text = "Blinking"
+                coordinate_info.setText("실시간 시선: 깜박임 감지")
+            elif gaze.is_right():
+                text = "Looking right"
+                coordinate_info.setText("실시간 시선: 우측 시선 감지")
+            elif gaze.is_left():
+                text = "Looking left"
+                coordinate_info.setText("실시간 시선: 좌측 시선 감지")
+            elif gaze.is_center():
+                text = "Looking center"
+                coordinate_info.setText("실시간 시선: 중앙 시선 감지")
+                
+            cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+
+            left_pupil = gaze.pupil_left_coords()
+            right_pupil = gaze.pupil_right_coords()
+            cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+            cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+    
             gray = cv2.cvtColor(frame, cv2.cv2.COLOR_BGR2RGB)
             canvas = detect(gray, frame)
 
             k = cv2.waitKey(1) & 0xff
             # FF는 끝의 8bit만을 이용한다는 뜻으로 ASCII 코드의 0~255값만 이용하겠다는 의미로 해석됨. (NumLock을 켰을때도 마찬가지)
-
-            
 
     @pyqtSlot()
     def canny(self):
@@ -529,9 +572,6 @@ class ImageViewer(QWidget):
         painter = QtGui.QPainter(self)
         painter.setBrush(QColor(25, 0, 90, 10))
         painter.drawImage(0, 0, self.image)
-        painter.drawRect(x2, y2, w2, h2)
-        painter.setBrush(QColor(200, 0, 0, 10))
-        painter.drawRect(ex2, ey2, ew2, eh2)
         self.image = QtGui.QImage()
 
     def initUI(self):
@@ -607,8 +647,13 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         exit_button.move(240, 600)
         exit_button.clicked.connect(self.exit_set)  # 버튼을 함수와 연결
 
+        graph_button = QPushButton('통계 그래프', self)  # 참여도 부여 버튼
+        graph_button.resize(100, 100)
+        graph_button.move(340, 600)
+        graph_button.clicked.connect(self.graph_win)
+
         global coordinate_info
-        coordinate_info = QLabel('X: '+'Y: '+'W: '+'H: ',
+        coordinate_info = QLabel('실시간 시선 감지',
                                  self)
         coordinate_info.move(500, 600)
         coordinate_info.resize(300, 40)
@@ -657,6 +702,9 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
     def participation_win(self):  # 참여도 부여 관련 창 열기
         self.window = participation_give()
 
+    def graph_win(self):  # 그래프 관련 창 열기
+        self.window = graph()
+
     isExit = False  # 호스트의 자리를 비운 상태 초기화
 
     def exit_set(self):  # 자리비움 설정
@@ -691,10 +739,10 @@ if __name__ == '__main__':
 
     vertical_layout = QVBoxLayout()
     horizontal_layout = QHBoxLayout()
-    
+
     horizontal_layout.setAlignment(Qt.AlignTop)
     horizontal_layout.addStretch(0)
-    horizontal_layout.addWidget(image_viewer1 )
+    horizontal_layout.addWidget(image_viewer1)
     horizontal_layout.addStretch(1)
 
     vertical_layout.addLayout(horizontal_layout)
