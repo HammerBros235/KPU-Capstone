@@ -1,3 +1,7 @@
+#2개의 그래프를 그림. 매초 업데이트되며 마지막 몇개의 수치만 그래프에 표현 됨. 전 수치는 저장하지 않고 있음.
+#그래프1: 정중앙 주시?0:1
+#그래프2: 정중앙 주시 수치 평균
+
 #import GazeTracking
 import matplotlib.pyplot as plt
 import numpy as np
