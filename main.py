@@ -448,9 +448,11 @@ class graph(QMainWindow):  # 그래프 윈도우
 
 
 #---------------------------------------
-        cpu = collections.deque(np.zeros(10))
-
-        ram = collections.deque(np.zeros(10))
+        gaze_centered = collections.deque(np.zeros(10))
+        gaze_centered_avg = collections.deque(np.zeros(10))
+        
+        global cnt
+        cnt = 0
 
         self.fig = plt.figure(figsize=(12, 6), facecolor='#DEDEDE')
         self.canvas = FigureCanvasQTAgg(self.fig)
@@ -513,9 +515,7 @@ class ShowVideo(QObject):
 
         global image
         video_capture = cv2.VideoCapture(0)
-        faceCascade = cv2.CascadeClassifier(
-            'haarcascade_frontalface_default.xml')
-        eyeCascade = cv2.CascadeClassifier('haarcascade_eye.xml')
+        
 
         global coordinate_info
         
