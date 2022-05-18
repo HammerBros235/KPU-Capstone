@@ -2,11 +2,13 @@
 #그래프1: 정중앙 주시?0:1
 #그래프2: 정중앙 주시 수치 평균
 
-#import GazeTracking
+from gaze_tracking import GazeTracking
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
 import collections
+
+gaze = GazeTracking()
 
 #gaze_centered: 0/1
 #gaze_centered_avg: avg
@@ -59,7 +61,7 @@ def my_function(i):
     # grid
     ax1.set_axisbelow(True)
     ax1.yaxis.grid(linestyle='dashed', alpha=0.8)
-
+    
 gaze_centered = collections.deque(np.zeros(10))
 gaze_centered_avg = collections.deque(np.zeros(10))
 cnt = 0
