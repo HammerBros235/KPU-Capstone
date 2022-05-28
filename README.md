@@ -1,3 +1,6 @@
+## Notes (220528)
+업데이트중...
+
 ## Notes (220510)
 - is_center -> %/All (+ >= pivot%)
   - Live update graphs. (like stocks)
