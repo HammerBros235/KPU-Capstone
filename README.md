@@ -1,5 +1,12 @@
-## Notes (220528)
-업데이트중...
+## 업데이트/Changelog
+
+## 220528
+- 프로젝트 방향성 변경을 따른 파일 정리.
+- 파일 설명
+  - AttFuncs2.py: 주요 함수 파일: 참여도 값 기록. 실시간 그래프. 화면 주시 실패시 출력.
+  - pylive.py: 설정 파일. (그래프 정의)
+  - IsCenterGraph.py, live_stats_demo.py: 필요 없어짐.
+  - 
 
 ## Notes (220510)
 - is_center -> %/All (+ >= pivot%)
