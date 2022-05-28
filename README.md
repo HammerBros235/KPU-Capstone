@@ -1,6 +1,10 @@
-## 업데이트/Changelog
+## 파일 설명
+- AttFuncs2.py: 주요 함수 파일: 참여도 값 기록. 실시간 그래프. 화면 주시 실패시 출력.
+- pylive.py: 설정 파일. (그래프 정의)
 
-## 220528
+## 업데이트/Changelog + notes
+
+### 22/05/28
 - 프로젝트 방향성 변경을 따른 파일 정리.
 - 파일 설명
   - AttFuncs2.py: 주요 함수 파일: 참여도 값 기록. 실시간 그래프. 화면 주시 실패시 출력.
@@ -8,7 +12,7 @@
   - IsCenterGraph.py, live_stats_demo.py: 필요 없어짐.
 
 
-## (개인용 읽을 필요 X) Notes (220510)
+### 22/05/10
 - is_center -> %/All (+ >= pivot%)
   - Live update graphs. (like stocks)
     - matplotlib? (has pause option)
@@ -23,12 +27,6 @@
     - Put % to a dict, sort, percentile, graph.
 
 - class info. (consider in the future)
-
----
-
-## 파일 설명
-- AttFuncs2.py: 주요 함수 파일: 참여도 값 기록. 실시간 그래프. 화면 주시 실패시 출력.
-- pylive.py: 설정 파일. (그래프 정의)
 
 ---
 
