@@ -1,7 +1,7 @@
 #is_center() 값 기록. 실시간 그래프. 화면 주시 실패.
 
-#from gaze_tracking import GazeTracking
-#gaze = GazeTracking()
+from gaze_tracking import GazeTracking
+gaze = GazeTracking()
 
 from pylive import live_plotter
 import numpy as np
