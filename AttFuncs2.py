@@ -1,4 +1,4 @@
-#is_center() 값 기록. 실시간 그래프. 화면 주시 실패. 
+#is_center() 값 기록. 실시간 그래프. 화면 주시 실패.
 
 #from gaze_tracking import GazeTracking
 #gaze = GazeTracking()
@@ -24,8 +24,8 @@ concentrate_for_secs = 5
 while True:
     
     ##is_center() 값 기록.
-    #cen = gaze.is_center()
-    cen = np.random.choice([0,1]) 
+    cen = gaze.is_center()
+    #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
     lst_cen.append(cen)
     
     cen_avg = sum(lst_cen) / len(lst_cen)
