@@ -2,7 +2,6 @@
 
 import cv2
 import sys
-from AttFuncs import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import *
@@ -25,7 +24,8 @@ import psutil
 import collections
 from my_function import *
 from gaze_tracking import GazeTracking
-
+from pylive import live_plotter
+import matplotlib.animation as animation
 
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
@@ -436,11 +436,20 @@ class participation_give(QMainWindow):  # 참여도 부여 윈도우
 
 
 class graph(QMainWindow):  # 그래프 윈도우
-
+    
     def __init__(self):
+        global gaze_centered, gaze_centered_avg,open,graphW,line1,x_vec,y_vec,graphPlt
+        
         super().__init__()
+        graphW=self
+        
+        graphPlt=plt
+        
         self.setWindowTitle('graph_win')
         self.setGeometry(100, 200, 900, 700)  # 위치, 크기 조정
+        graphW.fig = plt.figure(figsize=(13,6))
+        self.canvas = FigureCanvasQTAgg(self.fig)
+        self.timeInterval = 0.1
         
         self.main_widget = QWidget()
         vbox = QVBoxLayout(self.main_widget)
@@ -448,29 +457,23 @@ class graph(QMainWindow):  # 그래프 윈도우
 
 
 #---------------------------------------
-        gaze_centered = collections.deque(np.zeros(10))
-        gaze_centered_avg = collections.deque(np.zeros(10))
         
-        global cnt
-        cnt = 0
+        #graphW.canvas.style.use('ggplot')
 
-        self.fig = plt.figure(figsize=(12, 6), facecolor='#DEDEDE')
-        self.canvas = FigureCanvasQTAgg(self.fig)
-        
-        self.ax = plt.subplot(121)
-        self.ax1 = plt.subplot(122)
-
-        self.ax.set_facecolor('#DEDEDE')
-        self.ax1.set_facecolor('#DEDEDE')
-        
+        # this is the call to matplotlib that allows dynamic plotting
+        plt.ion()
+        graphW.ax = graphW.fig.add_subplot(111)
+        # create a variable for the line so we can later update it
+        graphW.line1, = graphW.ax.plot(x_vec,y_vec,'-o',alpha=0.8)        
+        #update plot label/title
+        #plt.ylabel('')
+        identifier=''
+        plt.title('Attendence'.format(identifier))
+        graphW.ani = animation.FuncAnimation(self.canvas.figure, self.line1,blit=True, interval=25)
+        graphW.canvas.draw()
         vbox.addWidget(self.canvas)
-        self.addToolBar(NavigationToolbar(self.canvas, self))
-
-        animation = FuncAnimation(plt.gcf(), my_function, interval=1000)
-#---------------------------------------
-        self.ani = animation
-        self.canvas.draw()
-        self.show()
+        open= True
+        graphW.show()
 
 # --------------------------------------------------------
 
@@ -517,9 +520,22 @@ class ShowVideo(QObject):
         video_capture = cv2.VideoCapture(0)
         
 
-        global coordinate_info
+        global coordinate_info,x_vec,y_vec,line1,size
         
         gaze = GazeTracking()
+        #값 기록 리스트
+        lst_cen = []    #is_center()값 기록. (예: [0,0,1,1,1,1,1,0,0,1,1,1])
+        lst_cen_avg = []    #lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
+
+        #Graph
+        size = 100
+        x_vec = np.linspace(0,1,size+1)[0:-1]
+        y_vec = np.zeros(size)
+        line1 = []
+
+        #화면 주시 실패 설정 값
+        concentrate_for_secs = 5
+        
         while True:
             _, frame = video_capture.read()  # 캠의 화면을 이미지로 자자름
             
@@ -539,6 +555,29 @@ class ShowVideo(QObject):
             elif gaze.is_center():
                 text = "Looking center"
                 coordinate_info.setText("실시간 시선: 중앙 시선 감지")
+            
+            ##is_center() 값 기록.
+            cen = gaze.is_center()
+            global open
+            if cen!=None and open==True:
+                #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
+                lst_cen.append(cen)
+    
+                cen_avg = sum(lst_cen) / len(lst_cen)
+                lst_cen_avg.append(cen_avg)
+        
+    
+                #실시간 그래프
+                y_vec[-1] = lst_cen_avg[-1]
+            
+                line1 = live_plotter(x_vec,y_vec,line1,graphW,graphPlt)
+                y_vec = np.append(y_vec[1:],0.0)
+                graphW.canvas.draw()
+    
+                #화면 주시 실패 
+                if sum(lst_cen[concentrate_for_secs:]) == 0:
+                        coordinate_info.setText("실시간 시선: 다른 곳을 보고 있음")
+
                 
             cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
@@ -602,7 +641,6 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         global points, point_index, pD
         points = []
         point_index = 0
-        pD = pDiff(Point(100, 100, 100, 100), Point(200, 200, 150, 150))
 
         chatBox = ChatBox()  # 채팅 박스
         host = Host()  # 호스트
