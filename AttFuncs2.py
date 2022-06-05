@@ -1,7 +1,8 @@
-#is_center() 값 기록. 실시간 그래프. 화면 주시 실패.
+##`%matplotlib qt` 실행 
+#is_center() 값 기록. 실시간 그래프. 화면 주시 실패. 
 
-from gaze_tracking import GazeTracking
-gaze = GazeTracking()
+#from gaze_tracking import GazeTracking
+#gaze = GazeTracking()
 
 from pylive import live_plotter
 import numpy as np
@@ -24,20 +25,22 @@ concentrate_for_secs = 5
 while True:
     
     ##is_center() 값 기록.
-    cen = gaze.is_center()
-    #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
-    lst_cen.append(cen)
+    #cen = gaze.is_center()
+    cen = np.random.choice([0,1]) 
     
-    cen_avg = sum(lst_cen) / len(lst_cen)
-    lst_cen_avg.append(cen_avg)
+    if cen != None:
+        lst_cen.append(cen)
         
+        cen_avg = sum(lst_cen) / len(lst_cen)
+        lst_cen_avg.append(cen_avg)
+            
     
-    #실시간 그래프
-    y_vec[-1] = lst_cen_avg[-1]
-    line1 = live_plotter(x_vec,y_vec,line1)
-    y_vec = np.append(y_vec[1:],0.0)
-    
-    
-    #화면 주시 실패 
-    if sum(lst_cen[concentrate_for_secs:]) == 0:
-        print("5초 이상 화면 주시 실패.")
+        #실시간 그래프
+        y_vec[-1] = lst_cen_avg[-1]
+        line1 = live_plotter(x_vec,y_vec,line1)
+        y_vec = np.append(y_vec[1:],0.0)
+        
+        
+        #화면 주시 실패 
+        if sum(lst_cen[concentrate_for_secs:]) == 0:
+            print("5초 이상 화면 주시 실패.")
