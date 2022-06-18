@@ -460,6 +460,12 @@ class graph(QMainWindow):  # 그래프 윈도우
         
         #graphW.canvas.style.use('ggplot')
 
+        # start 누르기 전 그래플를 띄울시 "정의 되지 않음" 에러 해소를 위한 재정의.
+        size = 100
+        x_vec = np.linspace(0,1,size+1)[0:-1]
+        y_vec = np.zeros(size)
+        line1 = []
+        
         # this is the call to matplotlib that allows dynamic plotting
         plt.ion()
         graphW.ax = graphW.fig.add_subplot(111)
