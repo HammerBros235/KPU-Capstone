@@ -465,7 +465,7 @@ class graph(QMainWindow):  # 그래프 윈도우
         x_vec = np.linspace(0,1,size+1)[0:-1]
         y_vec = np.zeros(size)
         line1 = []
-        
+
         # this is the call to matplotlib that allows dynamic plotting
         plt.ion()
         graphW.ax = graphW.fig.add_subplot(111)
@@ -490,11 +490,15 @@ class graph(QMainWindow):  # 그래프 윈도우
 class ShowVideo(QObject):
 
     flag = 0
-
+    
+    global camera
     camera = cv2.VideoCapture(0)
-    camera.open(0, cv2.CAP_DSHOW)
-
+    camera.open(0, cv2.CAP_DSHOW) #디바이스 따라 카메라가 0번일 수 있고 1번일 수 있음. 1번도 자동으로 사용하게 함.
     ret, image = camera.read()
+    
+    if ret is False:
+        print("카메라 인식 실패")
+    
     height, width = image.shape[:2]
 
     VideoSignal1 = pyqtSignal(QtGui.QImage)
@@ -524,7 +528,10 @@ class ShowVideo(QObject):
             return frame
 
         global image
-        video_capture = cv2.VideoCapture(0)
+        global camera
+        
+        #video_capture = cv2.VideoCapture(0)
+        video_capture = camera
         
 
         global coordinate_info,x_vec,y_vec,line1,size
@@ -593,7 +600,7 @@ class ShowVideo(QObject):
             cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
             cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
     
-            gray = cv2.cvtColor(frame, cv2.cv2.COLOR_BGR2RGB)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             canvas = detect(gray, frame)
 
             k = cv2.waitKey(1) & 0xff
