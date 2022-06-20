@@ -575,8 +575,8 @@ class ShowVideo(QObject):
                 coordinate_info.setText("실시간 시선: 중앙 시선 감지")
             
             ##is_center() 값 기록.
-            #cen = gaze.is_center()
-            cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
+            cen = gaze.is_center()
+            #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
             global open
             if cen!=None and open==True:
                 lst_cen.append(cen)
