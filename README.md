@@ -4,6 +4,9 @@
 
 ## 업데이트/Changelog + notes
 
+### 22/06/20
+- Make graph run on background. Currently resets when pressing a button.
+
 ### 22/05/28
 - 프로젝트 방향성 변경을 따른 파일 정리.
 - 파일 설명
