@@ -29,7 +29,10 @@ import matplotlib.animation as animation
 
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
-
+def percentage(part, whole):
+    Percentage = 100 * float(part)/float(whole)
+    return str(round(Percentage,2)) + "%"
+    
 class problem_resister(QWidget):  # 문제 등록 창
     def __init__(self):
         super().__init__()
@@ -572,8 +575,8 @@ class ShowVideo(QObject):
                 coordinate_info.setText("실시간 시선: 중앙 시선 감지")
             
             ##is_center() 값 기록.
-            cen = gaze.is_center()
-            #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
+            #cen = gaze.is_center()
+            cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
             global open
             if cen!=None and open==True:
                 lst_cen.append(cen)
@@ -581,13 +584,17 @@ class ShowVideo(QObject):
                 cen_avg = sum(lst_cen) / len(lst_cen)
                 lst_cen_avg.append(cen_avg)
         
-    
                 #실시간 그래프
                 y_vec[-1] = lst_cen_avg[-1]
             
                 line1 = live_plotter(x_vec,y_vec,line1,graphW,graphPlt)
                 y_vec = np.append(y_vec[1:],0.0)
-                graphW.canvas.draw()
+                graphW.canvas.draw()                
+                
+                #수치계산
+                global cen_true, cen_true_textbox
+                cen_true=percentage(lst_cen.count(1),len(lst_cen))
+                cen_true_textbox.setText("시선율:" + cen_true)
     
                 #화면 주시 실패 
                 if sum(lst_cen[concentrate_for_secs:]) == 0:
@@ -710,6 +717,12 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
                                  self)
         coordinate_info.move(500, 600)
         coordinate_info.resize(300, 40)
+        
+        global cen_true, cen_true_textbox
+        cen_true_textbox = QLabel("", self)
+        cen_true_textbox.move(500, 650)
+        cen_true_textbox.resize(300, 40)
+        
 
 # -------------------------------------------------------------
 # 채팅창을 위한 부분 (스크롤)
