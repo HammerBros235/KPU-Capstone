@@ -6,6 +6,7 @@
 
 ### 22/06/20
 - Make graph run on background. Currently resets when pressing a button.
+- Calculate mean, Att%. And print it to the box.
 
 ### 22/05/28
 - 프로젝트 방향성 변경을 따른 파일 정리.
