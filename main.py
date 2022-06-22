@@ -26,13 +26,14 @@ from my_function import *
 from gaze_tracking import GazeTracking
 from pylive import live_plotter
 import matplotlib.animation as animation
+from PyQt5.QtGui import *
 
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
 def percentage(part, whole):
     Percentage = 100 * float(part)/float(whole)
     return str(round(Percentage,2)) + "%"
-    
+
 class problem_resister(QWidget):  # 문제 등록 창
     def __init__(self):
         super().__init__()
@@ -438,54 +439,7 @@ class participation_give(QMainWindow):  # 참여도 부여 윈도우
         self.show()  # UI 보여주기
 
 
-class graph(QMainWindow):  # 그래프 윈도우
-    
-    def __init__(self):
-        global gaze_centered, gaze_centered_avg,open,graphW,line1,x_vec,y_vec,graphPlt
-        
-        super().__init__()
-        graphW=self
-        
-        graphPlt=plt
-        
-        self.setWindowTitle('graph_win')
-        self.setGeometry(100, 200, 900, 700)  # 위치, 크기 조정
-        graphW.fig = plt.figure(figsize=(8,4))
-        plt.xticks([])
-        self.canvas = FigureCanvasQTAgg(self.fig)
-        self.timeInterval = 0.1
-        
-        self.main_widget = QWidget()
-        vbox = QVBoxLayout(self.main_widget)
-        self.setCentralWidget(self.main_widget)
 
-
-#---------------------------------------
-        
-        #graphW.canvas.style.use('ggplot')
-
-        # start 누르기 전 그래플를 띄울시 "정의 되지 않음" 에러 해소를 위한 재정의.
-        size = 100
-        x_vec = np.linspace(0,1,size+1)[0:-1]
-        y_vec = np.zeros(size)
-        line1 = []
-
-        # this is the call to matplotlib that allows dynamic plotting
-        plt.ion()
-        graphW.ax = graphW.fig.add_subplot(111)
-        # create a variable for the line so we can later update it
-        graphW.line1, = graphW.ax.plot(x_vec,y_vec,'-o',alpha=0.8, markersize=2)        
-        #update plot label/title
-        #plt.ylabel('')
-        identifier=''
-        plt.title('Attendence'.format(identifier))
-        graphW.ani = animation.FuncAnimation(self.canvas.figure, self.line1,blit=True, interval=25)
-        graphW.canvas.draw()
-        vbox.addWidget(self.canvas)
-        open= True
-        graphW.show()
-
-# --------------------------------------------------------
 
 # 비디오 보여주는 클래스, 전체적으로 잘 몰라서 주석을 달 수 없습니다..
 # 다만 길이가 길진 않습니다.
@@ -495,9 +449,15 @@ class ShowVideo(QObject):
 
     flag = 0
     
-    global camera
+    global camera, ret
     camera = cv2.VideoCapture(0)
-    camera.open(0, cv2.CAP_DSHOW) #디바이스 따라 카메라가 0번일 수 있고 1번일 수 있음. 1번도 자동으로 사용하게 함.
+    
+    if camera.open(1, cv2.CAP_DSHOW): 
+        pass
+    else: 
+        camera.open(0, cv2.CAP_DSHOW)
+        
+    #camera.open(0, cv2.CAP_DSHOW) #디바이스 따라 카메라가 0번일 수 있고 1번일 수 있음. 1번도 자동으로 사용하게 함.
     ret, image = camera.read()
     
     if ret is False:
@@ -537,6 +497,9 @@ class ShowVideo(QObject):
         #video_capture = cv2.VideoCapture(0)
         video_capture = camera
         
+        if ret is False:
+            print("카메라 인식 실패")
+        
 
         global coordinate_info,x_vec,y_vec,line1,size
         
@@ -546,7 +509,7 @@ class ShowVideo(QObject):
         lst_cen_avg = []    #lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
 
         #Graph
-        size = 50
+        size = 100
         x_vec = np.linspace(0,1,size+1)[0:-1]
         y_vec = np.zeros(size)
         line1 = []
@@ -577,19 +540,20 @@ class ShowVideo(QObject):
             ##is_center() 값 기록.
             cen = gaze.is_center()
             #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
-            global open
-            if cen!=None and open==True:
+
+            if cen!=None: #그래프3
                 lst_cen.append(cen)
     
                 cen_avg = sum(lst_cen) / len(lst_cen)
                 lst_cen_avg.append(cen_avg)
         
+    
                 #실시간 그래프
                 y_vec[-1] = lst_cen_avg[-1]
             
                 line1 = live_plotter(x_vec,y_vec,line1,graphW,graphPlt)
                 y_vec = np.append(y_vec[1:],0.0)
-                graphW.canvas.draw()                
+                graphW.canvas.draw()
                 
                 #수치계산
                 global cen_true, cen_true_textbox
@@ -605,8 +569,8 @@ class ShowVideo(QObject):
 
             left_pupil = gaze.pupil_left_coords()
             right_pupil = gaze.pupil_right_coords()
-            cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-            cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+            #cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+            #cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
     
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             canvas = detect(gray, frame)
@@ -620,8 +584,7 @@ class ShowVideo(QObject):
 
 
 class ImageViewer(QWidget):
-    global x2, y2, w2, h2, ex2, ey2, ew2, eh2
-    x2, y2, w2, h2, ex2, ey2, ew2, eh2 = 1, 1, 1, 1, 100, 100, 100, 100
+    
 
     def __init__(self, parent=None):
         super(ImageViewer, self).__init__(parent)
@@ -655,12 +618,13 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
     def __init__(self):
         super().__init__()
         self.buttons = []
+        
         self.initUI()
 
     def initUI(self):
 
         global chatBox, host, participants, myUI, problems, problem_num, init, mode, checkedP, isExit
-        global points, point_index, pD
+        global points, point_index, pD, push_button1
         points = []
         point_index = 0
 
@@ -686,61 +650,123 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         participants[1].name = "빌제리안"
         participants[2].name = "첸"
         participants[3].name = "마유"
+        #
+        
+        image_viewer1 = ImageViewer(self)
+        image_viewer1.resize(650, 450)  # 크기조정
+        image_viewer1.move(0, 100)  # 위치 조정
+        vid.VideoSignal1.connect(image_viewer1.setImage)
 
+        push_button1 = QPushButton('Start',self)  # 스타트 버튼 누르면 웹캠 연결
+        push_button1.resize(650, 40)  # 크기조정
+        push_button1.move(0, 500)  # 위치 조정
+        push_button1.clicked.connect(vid.startVideo)
+        
+        
+        #
         problem_button = QPushButton('문제제공', self)  # 문제제공 버튼
-        problem_button.resize(100, 100)  # 크기조정
-        problem_button.move(40, 600)  # 위치 조정
+        problem_button.resize(175, 100)  # 크기조정
+        problem_button.move(650, 700)  # 위치 조정
         problem_button.clicked.connect(self.problem_win)  # 버튼을 함수와 연결
 
         participation_button = QPushButton('참여도부여', self)  # 참여도 부여 버튼
-        participation_button.resize(100, 100)
-        participation_button.move(140, 600)
+        participation_button.resize(170, 100)
+        participation_button.move(825, 700)
         participation_button.clicked.connect(self.participation_win)
 
         exit_button = QPushButton('자리비움\n(호스트용)', self)  # 자리비움 버튼
-        exit_button.resize(100, 100)
-        exit_button.move(240, 600)
+        exit_button.resize(170, 100)
+        exit_button.move(995, 700)
         global exit_host
         exit_host = QLabel('호스트) 자리비움 비활성화 상태', self)  # 자리비움 상황
         exit_host.resize(400, 30)
-        exit_host.move(500, 650)
-        exit_button.move(240, 600)
+        exit_host.move(10, 650)
         exit_button.clicked.connect(self.exit_set)  # 버튼을 함수와 연결
+        
+        pixmap = QPixmap('MPAOC.png')
+        self.pic = QLabel(self)
+        self.pic.move(0,0)
+        self.pic.setPixmap(QPixmap(pixmap))
+        
+        
+        
+#------------------그래프2---------------------
+        global gaze_centered, gaze_centered_avg,graphW,line1,x_vec,y_vec,graphPlt
 
-        graph_button = QPushButton('통계 그래프', self)  # 참여도 부여 버튼
-        graph_button.resize(100, 100)
-        graph_button.move(340, 600)
-        graph_button.clicked.connect(self.graph_win)
+        graphW=self
+        
+        graphPlt=plt
+        
+        graphW.fig = plt.figure(figsize=(8,4),facecolor='#f0f0f0')
+        #plt.xticks([])
+
+        self.canvas = FigureCanvasQTAgg(self.fig)
+        self.timeInterval = 1.0
+        
+        main_widget = QWidget(self)
+        main_widget.move(643,0)
+        vbox = QVBoxLayout(main_widget)
+        
+   
+
+        # start 누르기 전 그래플를 띄울시 "정의 되지 않음" 에러 해소를 위한 재정의.
+        size = 100
+        x_vec = np.linspace(0,1,size+1)[0:-1]
+        y_vec = np.zeros(size)
+        line1 = []
+
+        # this is the call to matplotlib that allows dynamic plotting
+        plt.ion()
+        
+        graphW.ax = graphW.fig.add_subplot(111)
+        graphW.ax.set_facecolor('#f0f0f0')
+        # create a variable for the line so we can later update it
+        graphW.line1, = graphW.ax.plot(x_vec,y_vec,'-o',alpha=0.8, markersize=2)        
+        
+        #update plot label/title
+        #plt.ylabel('')
+        identifier=''
+        plt.title('Attendence'.format(identifier))
+        graphW.ani = animation.FuncAnimation(self.canvas.figure, self.line1,blit=True, interval=100)
+        graphW.canvas.draw()
+        
+        
+        vbox.addWidget(self.canvas)
+#-----------------------------------
 
         global coordinate_info
         coordinate_info = QLabel('실시간 시선 감지',
                                  self)
-        coordinate_info.move(500, 600)
-        coordinate_info.resize(300, 40)
+        coordinate_info.move(10, 600)
+        coordinate_info.resize(300, 50)
         
         global cen_true, cen_true_textbox
-        cen_true_textbox = QLabel("", self)
-        cen_true_textbox.move(500, 650)
+        cen_true_textbox = QLabel("초기화값", self)
+        cen_true_textbox.move(10, 670)
         cen_true_textbox.resize(300, 40)
-        
 
 # -------------------------------------------------------------
 # 채팅창을 위한 부분 (스크롤)
 
         chatting_scroll = QScrollArea(self)
-        chatting_scroll.resize(525, 400)
-        chatting_scroll.move(650, 20)
+        chatting_scroll.resize(515, 350)
+        chatting_scroll.move(650, 290)
         chatBoxLabel = QLabel(chatBox.chatbox)
         chatBoxLabel.resize(525, 400)
         chatting_scroll.setWidget(chatBoxLabel)
+        
+        pal = QPalette()
+        pal.setColor(QPalette.Background,QColor(200,200,200))
+        chatting_scroll.setAutoFillBackground(True)
+        chatting_scroll.setPalette(pal)
 # --------------------------------------------------------------
         chatting_input = QTextEdit(self)  # 채팅 입력 받는 부분
-        chatting_input.resize(425, 80)
-        chatting_input.move(650, 420)
+        chatting_input.resize(425, 60)
+        chatting_input.move(650, 640)
 
         chatting_button = QPushButton('채팅 입력', self)  # 채팅 입력 후 누르는 버튼
-        chatting_button.resize(100, 80)
-        chatting_button.move(1075, 420)
+        chatting_button.resize(90, 60)
+        chatting_button.move(1075, 640)
 
         def addChat(self):  # 채팅 내용을 채팅박스에 넣는 함수
             newChat = Chat()
@@ -794,28 +820,13 @@ if __name__ == '__main__':
 
     thread = QThread()  # 스레드
     thread.start()
+    global vid
     vid = ShowVideo()
     vid.moveToThread(thread)  # 웹캠은 스레드로 따로 관리
-    image_viewer1 = ImageViewer()
+    
+    
 
-    vid.VideoSignal1.connect(image_viewer1.setImage)
+    MyApp()  # 메인 화면 열림
 
-    push_button1 = QPushButton('Start')  # 스타트 버튼 누르면 웹캠 연결
-    push_button1.clicked.connect(vid.startVideo)
-
-    vertical_layout = QVBoxLayout()
-    horizontal_layout = QHBoxLayout()
-
-    horizontal_layout.setAlignment(Qt.AlignTop)
-    horizontal_layout.addStretch(0)
-    horizontal_layout.addWidget(image_viewer1)
-    horizontal_layout.addStretch(1)
-
-    vertical_layout.addLayout(horizontal_layout)
-    vertical_layout.addWidget(push_button1)
-
-    layout_widget = MyApp()  # 메인 화면 열림
-
-    layout_widget.setLayout(vertical_layout)
 
     sys.exit(app.exec_())
