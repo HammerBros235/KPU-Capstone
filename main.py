@@ -704,6 +704,7 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         self.timeInterval = 1.0
         
         main_widget = QWidget(self)
+        main_widget.resize(600,300)
         main_widget.move(643,0)
         vbox = QVBoxLayout(main_widget)
         
@@ -741,7 +742,7 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         coordinate_info.resize(300, 50)
         
         global cen_true, cen_true_textbox
-        cen_true_textbox = QLabel("초기화값", self)
+        cen_true_textbox = QLabel("", self)
         cen_true_textbox.move(10, 670)
         cen_true_textbox.resize(300, 40)
 
