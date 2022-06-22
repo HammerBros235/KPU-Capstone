@@ -498,6 +498,7 @@ class ShowVideo(QObject):
     global camera
     camera = cv2.VideoCapture(0)
     camera.open(0, cv2.CAP_DSHOW) #디바이스 따라 카메라가 0번일 수 있고 1번일 수 있음. 1번도 자동으로 사용하게 함.
+    #camera.open(1, cv2.CAP_DSHOW) #개인용 노트북용.
     ret, image = camera.read()
     
     if ret is False:
@@ -546,7 +547,7 @@ class ShowVideo(QObject):
         lst_cen_avg = []    #lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
 
         #Graph
-        size = 50
+        size = 100
         x_vec = np.linspace(0,1,size+1)[0:-1]
         y_vec = np.zeros(size)
         line1 = []
