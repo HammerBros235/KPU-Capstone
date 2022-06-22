@@ -439,55 +439,7 @@ class participation_give(QMainWindow):  # 참여도 부여 윈도우
         self.show()  # UI 보여주기
 
 
-class graph(QMainWindow):  # 그래프1
-    
-    def __init__(self):
-        global gaze_centered, gaze_centered_avg,graphW,line1,x_vec,y_vec,graphPlt
-        
-        super().__init__()
-        graphW=self
-        
-        graphPlt=plt
-        
-        graphW.fig = plt.figure(figsize=(8,4))
-        plt.xticks([])
 
-        self.canvas = FigureCanvasQTAgg(self.fig)
-        self.timeInterval = 1.0
-        
-        self.main_widget = QWidget()
-        vbox = QVBoxLayout(self.main_widget)
-        self.setCentralWidget(self.main_widget)
-
-
-#---------------------------------------
-        
-        #graphW.canvas.style.use('ggplot')
-
-        # start 누르기 전 그래플를 띄울시 "정의 되지 않음" 에러 해소를 위한 재정의.
-        size = 100
-        x_vec = np.linspace(0,1,size+1)[0:-1]
-        y_vec = np.zeros(size)
-        line1 = []
-
-        # this is the call to matplotlib that allows dynamic plotting
-        plt.ion()
-        graphW.ax = graphW.fig.add_subplot(111)
-        # create a variable for the line so we can later update it
-        graphW.line1, = graphW.ax.plot(x_vec,y_vec,'-o',alpha=0.8, markersize=2)        
-        
-        #update plot label/title
-        #plt.ylabel('')
-        identifier=''
-        plt.title('Attendence'.format(identifier))
-        graphW.ani = animation.FuncAnimation(self.canvas.figure, self.line1,blit=True, interval=100)
-        graphW.canvas.draw()
-        
-        
-        vbox.addWidget(self.canvas)
-        graphW.show()
-
-# --------------------------------------------------------
 
 # 비디오 보여주는 클래스, 전체적으로 잘 몰라서 주석을 달 수 없습니다..
 # 다만 길이가 길진 않습니다.
@@ -617,8 +569,7 @@ class ShowVideo(QObject):
 
             left_pupil = gaze.pupil_left_coords()
             right_pupil = gaze.pupil_right_coords()
-            cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-            cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+            
     
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             canvas = detect(gray, frame)
