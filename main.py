@@ -569,7 +569,8 @@ class ShowVideo(QObject):
 
             left_pupil = gaze.pupil_left_coords()
             right_pupil = gaze.pupil_right_coords()
-            
+            #cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+            #cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
     
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             canvas = detect(gray, frame)
@@ -702,7 +703,7 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         graphPlt=plt
         
         graphW.fig = plt.figure(figsize=(8,4),facecolor='gray')
-        plt.xticks([])
+        #plt.xticks([])
 
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.timeInterval = 1.0
