@@ -241,6 +241,39 @@ class problem_resister(QWidget):  # 문제 등록 창
             problem_importance.move(0, 200)
             problem_right.move(0, 300)
             problem_contents.move(0, 500)
+            
+        elif mode == "autoSet":
+            
+            autoSetEnd = QPushButton('설정 완료', self)
+            
+            autoSet1 = QLabel('참여도가', self)
+            autoSet2 = QLineEdit(self)
+            autoSet3 = QLabel('%미만일 경우 자동 출제', self)
+            autoSetReflection = QLabel('', self)
+            
+            
+            autoSet1.resize(50,30)
+            autoSet1.move(0,0)
+            
+            autoSet2.resize(50,30)
+            autoSet2.move(50,0)
+            
+            autoSet3.resize(150,30)
+            autoSet3.move(100,0)
+            
+            autoSetEnd.resize(100,30)
+            autoSetEnd.move(250,0)
+            
+            autoSetReflection.resize(300,30)
+            autoSetReflection.move(0,30)
+            
+            def autoSetting(self):
+                autoSetReflection.setText("참여도 설정이 완료되었습니다.("+autoSet2.text()+"%)")
+            autoSetEnd.clicked.connect(autoSetting)
+            
+            
+            
+            self.setGeometry(200, 400, 350, 60)  # 위치 및 크기 조정
 
         self.show()  # 이게 있어야 버튼이나 라벨들이 보입니다.
 
@@ -338,7 +371,9 @@ class problem_main(QMainWindow):  # 문제 윈도우
                     break
 
         def problem_autoSet_layout(self):  # 자동 설정, 미구현
-            print("not implemented")
+            global mode
+            mode = "autoSet"  # 모드 설정
+            myUI.window = problem_resister()
 
         problem_register.clicked.connect(
             problem_register_layout)  # 버튼을 함수들과 연결
@@ -518,6 +553,7 @@ class ShowVideo(QObject):
         concentrate_for_secs = 5
         
         while True:
+            
             _, frame = video_capture.read()  # 캠의 화면을 이미지로 자자름
             
             gaze.refresh(frame)
@@ -540,8 +576,9 @@ class ShowVideo(QObject):
             ##is_center() 값 기록.
             cen = gaze.is_center()
             #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
-
-            if cen!=None: #그래프3
+            
+            global myUI
+            if cen!=None and myUI.isExit == False: #그래프3
                 lst_cen.append(cen)
     
                 cen_avg = sum(lst_cen) / len(lst_cen)
@@ -559,11 +596,30 @@ class ShowVideo(QObject):
                 global cen_true, cen_true_textbox
                 cen_true=percentage(lst_cen.count(1),len(lst_cen))
                 cen_true_textbox.setText("시선율:" + cen_true)
+                
+                
     
                 #화면 주시 실패 
                 if sum(lst_cen[concentrate_for_secs:]) == 0:
                         coordinate_info.setText("실시간 시선: 다른 곳을 보고 있음")
-
+            else:
+                if myUI.isExit == True:
+                    coordinate_info.setText("실시간 시선 인식 일시중지(자리비움)")
+                else:
+                    coordinate_info.setText("실시간 시선: 인식 불가 상태")
+                    lst_cen.append(False)
+    
+                    cen_avg = sum(lst_cen) / len(lst_cen)
+                    lst_cen_avg.append(cen_avg)
+            
+                    #실시간 그래프
+                    y_vec[-1] = lst_cen_avg[-1]
+            
+                    line1 = live_plotter(x_vec,y_vec,line1,graphW,graphPlt)
+                    y_vec = np.append(y_vec[1:],0.0)
+                    graphW.canvas.draw()
+    
+                
                 
             cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
@@ -618,11 +674,6 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
     def __init__(self):
         super().__init__()
         self.buttons = []
-        
-        pal = QPalette()
-        pal.setColor(QPalette.Background,QColor('gray'))
-        self.setAutoFillBackground(True)
-        self.setPalette(pal)
         
         self.initUI()
 
@@ -702,13 +753,14 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         
         graphPlt=plt
         
-        graphW.fig = plt.figure(figsize=(8,4),facecolor='gray')
+        graphW.fig = plt.figure(figsize=(8,4),facecolor='#f0f0f0')
         #plt.xticks([])
 
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.timeInterval = 1.0
         
         main_widget = QWidget(self)
+        main_widget.resize(600,300)
         main_widget.move(643,0)
         vbox = QVBoxLayout(main_widget)
         
@@ -724,7 +776,7 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         plt.ion()
         
         graphW.ax = graphW.fig.add_subplot(111)
-        graphW.ax.set_facecolor('gray')
+        graphW.ax.set_facecolor('#f0f0f0')
         # create a variable for the line so we can later update it
         graphW.line1, = graphW.ax.plot(x_vec,y_vec,'-o',alpha=0.8, markersize=2)        
         
@@ -746,7 +798,7 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         coordinate_info.resize(300, 50)
         
         global cen_true, cen_true_textbox
-        cen_true_textbox = QLabel("초기화값", self)
+        cen_true_textbox = QLabel("", self)
         cen_true_textbox.move(10, 670)
         cen_true_textbox.resize(300, 40)
 
