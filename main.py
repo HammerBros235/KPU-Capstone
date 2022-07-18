@@ -18,6 +18,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 import psutil
@@ -27,12 +28,50 @@ from gaze_tracking import GazeTracking
 from pylive import live_plotter
 import matplotlib.animation as animation
 from PyQt5.QtGui import *
+import time
+import threading
 
 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
-def percentage(part, whole):
-    Percentage = 100 * float(part)/float(whole)
-    return str(round(Percentage,2)) + "%"
+
+def percentage(part, whole, extra):
+
+    Percentage = (100 * float(part)/float(whole)) + extra
+
+    if (Percentage < 0):
+        Percentage = 0.00
+    elif(Percentage > 100):
+        Percentage = 100.00
+
+    return str(round(Percentage, 2)) + "%"
+
+class timer(threading.Thread):
+    def __init__(self, time, problem):
+        super().__init__()
+        self.time = time
+        self.problem = problem
+
+    def run(self):
+        global extra, breaking, autoP_button, resister_window
+        time.sleep(self.time)
+        if(breaking==True):
+            extra = extra - int(self.problem.importance)
+            resister_window.close()
+            breaking = False
+
+class timer2(threading.Thread):
+    def __init__(self, time):
+        super().__init__()
+        self.time = time
+
+    def run(self):
+        global extra, clicked, autoP_button
+        time.sleep(self.time)
+        if(clicked==False):
+            extra = extra - 30
+            autoP_button.setVisible(False)
+        clicked = False
+        
 
 class problem_resister(QWidget):  # 문제 등록 창
     def __init__(self):
@@ -40,9 +79,12 @@ class problem_resister(QWidget):  # 문제 등록 창
 
         self.setGeometry(100, 200, 900, 700)  # 위치 및 크기 조정
 
+        global resister_window
         global problem_info  # 문제 정보
         global init  # 최초 생성일 경우 확인
         global mode  # 등록, 수정 등등 모드 확인
+
+        resister_window = self
 
         if mode == "register":  # 등록 모드일 경우
 
@@ -232,48 +274,113 @@ class problem_resister(QWidget):  # 문제 등록 창
 
             problem_contents_edit.resize(600, 120)
 
-            problem_title_edit.move(100, 100)
-            problem_importance_edit.move(100, 200)
-            problem_right_edit.move(100, 300)
-            problem_contents_edit.move(100, 450)
+            problem_title_edit.move(100, 50)
+            problem_importance_edit.move(100, 100)
+            problem_right_edit.move(100, 150)
+            problem_contents_edit.move(100, 200)
 
-            problem_title.move(0, 100)
-            problem_importance.move(0, 200)
-            problem_right.move(0, 300)
-            problem_contents.move(0, 500)
+            problem_title.move(0, 50)
+            problem_importance.move(0, 100)
+            problem_right.move(0, 150)
+            problem_contents.move(0, 250)
+
+            self.setGeometry(200, 400, 600, 400)  # 위치 및 크기 조정
+
+        elif mode == "give":  # 출제 코드
             
+            t = timer(5,checkedP)                
+            t.daemon = True
+            t.start()         
+            
+            self.setWindowTitle('문제 출제')
+
+            problem_title = QLabel('문제 제목 : ', self)
+            problem_importance = QLabel('중요도(%) : ', self)
+            problem_right = QLabel('문제의 정답 : ', self)
+            problem_contents = QLabel('문제 내용 : ', self)
+            problem_final = QPushButton('제출하기', self)
+
+            problem_title_edit = QLabel(checkedP.title, self)
+            problem_importance_edit = QLabel(checkedP.importance, self)
+            problem_right_edit = QLineEdit(self)
+            problem_contents_edit = QLabel(checkedP.contents, self)
+
+            problem_contents_edit.resize(600, 120)
+            problem_final.resize(100, 100)
+
+            problem_title_edit.move(100, 50)
+            problem_importance_edit.move(100, 100)
+            problem_right_edit.move(100, 150)
+            problem_contents_edit.move(100, 200)
+
+            problem_title.move(0, 50)
+            problem_importance.move(0, 100)
+            problem_right.move(0, 150)
+            problem_contents.move(0, 250)
+
+            problem_final.move(500, 300)
+
+            self.setGeometry(200, 400, 600, 400)  # 위치 및 크기 조정
+
+            def check(self):
+                global extra, breaking
+
+                if(checkedP.right == problem_right_edit.text()):
+                    extra = extra + int(checkedP.importance)
+                else:
+                    extra = extra - int(checkedP.importance)
+                breaking = False
+                resister_window.close()
+
+            problem_final.clicked.connect(check)
+
         elif mode == "autoSet":
-            
             autoSetEnd = QPushButton('설정 완료', self)
-            
+
             autoSet1 = QLabel('참여도가', self)
             autoSet2 = QLineEdit(self)
-            autoSet3 = QLabel('%미만일 경우 자동 출제', self)
+            autoSet3 = QLabel('%미만일 경우 자동 출제 / 매 인식', self)
+            autoSet4 = QLineEdit(self)
+            autoSet5 = QLabel('마다 적용', self)
             autoSetReflection = QLabel('', self)
-            
-            
-            autoSet1.resize(50,30)
-            autoSet1.move(0,0)
-            
-            autoSet2.resize(50,30)
-            autoSet2.move(50,0)
-            
-            autoSet3.resize(150,30)
-            autoSet3.move(100,0)
-            
-            autoSetEnd.resize(100,30)
-            autoSetEnd.move(250,0)
-            
-            autoSetReflection.resize(300,30)
-            autoSetReflection.move(0,30)
-            
+
+            autoSet1.resize(50, 30)
+            autoSet1.move(0, 0)
+
+            autoSet2.resize(50, 30)
+            autoSet2.move(50, 0)
+
+            autoSet3.resize(190, 30)
+            autoSet3.move(100, 0)
+
+            autoSet4.resize(50, 30)
+            autoSet4.move(290, 0)
+
+            autoSet5.resize(50, 30)
+            autoSet5.move(340, 0)
+
+            autoSetEnd.resize(100, 30)
+            autoSetEnd.move(400, 0)
+
+            autoSetReflection.resize(300, 30)
+            autoSetReflection.move(0, 30)
+
             def autoSetting(self):
-                autoSetReflection.setText("참여도 설정이 완료되었습니다.("+autoSet2.text()+"%)")
+
+                global autoSetDecided, autoSetDecided_time
+
+                if (autoSet2.text().isnumeric() == True and autoSet4.text().isnumeric() == True and int(autoSet2.text()) >= 10 and int(autoSet4.text()) >= 10):
+                    autoSetDecided = autoSet2.text()
+                    autoSetDecided_time = autoSet4.text()
+                    autoSetReflection.setText(
+                        "참여도 설정이 완료되었습니다.("+autoSet2.text()+"%)")
+
+                else:
+                    autoSetReflection.setText("입력값은 10 이상의 정수여야합니다.")
+
             autoSetEnd.clicked.connect(autoSetting)
-            
-            
-            
-            self.setGeometry(200, 400, 350, 60)  # 위치 및 크기 조정
+
+            self.setGeometry(200, 400, 500, 60)  # 위치 및 크기 조정
 
         self.show()  # 이게 있어야 버튼이나 라벨들이 보입니다.
 
@@ -356,8 +463,9 @@ class problem_main(QMainWindow):  # 문제 윈도우
                     myUI.window = problem_resister()
                     break  # 체크된 문제를 찾은 후 루프 탈출
 
-        def problem_question_layout(self):  # 출제 함수, 미구현
-            print("not implemented")
+        def problem_question_layout(self):  # 출제 함수
+            mode = "give"  # 모드 설정
+            myUI.window = problem_resister()
 
         def problem_preview_layout(self):  # 미리보기 함수
             global mode
@@ -370,7 +478,7 @@ class problem_main(QMainWindow):  # 문제 윈도우
                     myUI.window = problem_resister()
                     break
 
-        def problem_autoSet_layout(self):  # 자동 설정, 미구현
+        def problem_autoSet_layout(self):  # 자동 설정
             global mode
             mode = "autoSet"  # 모드 설정
             myUI.window = problem_resister()
@@ -474,8 +582,6 @@ class participation_give(QMainWindow):  # 참여도 부여 윈도우
         self.show()  # UI 보여주기
 
 
-
-
 # 비디오 보여주는 클래스, 전체적으로 잘 몰라서 주석을 달 수 없습니다..
 # 다만 길이가 길진 않습니다.
 
@@ -483,21 +589,21 @@ class participation_give(QMainWindow):  # 참여도 부여 윈도우
 class ShowVideo(QObject):
 
     flag = 0
-    
+
     global camera, ret
     camera = cv2.VideoCapture(0)
-    
-    if camera.open(1, cv2.CAP_DSHOW): 
+
+    if camera.open(1, cv2.CAP_DSHOW):
         pass
-    else: 
+    else:
         camera.open(0, cv2.CAP_DSHOW)
-        
-    #camera.open(0, cv2.CAP_DSHOW) #디바이스 따라 카메라가 0번일 수 있고 1번일 수 있음. 1번도 자동으로 사용하게 함.
+
+    # camera.open(0, cv2.CAP_DSHOW) #디바이스 따라 카메라가 0번일 수 있고 1번일 수 있음. 1번도 자동으로 사용하게 함.
     ret, image = camera.read()
-    
+
     if ret is False:
         print("카메라 인식 실패")
-    
+
     height, width = image.shape[:2]
 
     VideoSignal1 = pyqtSignal(QtGui.QImage)
@@ -509,7 +615,6 @@ class ShowVideo(QObject):
     def startVideo(self):
 
         def detect(gray, frame):
-            
 
             qt_image1 = QtGui.QImage(gray.data,
                                      self.width,
@@ -528,37 +633,36 @@ class ShowVideo(QObject):
 
         global image
         global camera
-        
+
         #video_capture = cv2.VideoCapture(0)
         video_capture = camera
-        
+
         if ret is False:
             print("카메라 인식 실패")
-        
 
-        global coordinate_info,x_vec,y_vec,line1,size
-        
+        global coordinate_info, x_vec, y_vec, line1, size
+
         gaze = GazeTracking()
-        #값 기록 리스트
-        lst_cen = []    #is_center()값 기록. (예: [0,0,1,1,1,1,1,0,0,1,1,1])
-        lst_cen_avg = []    #lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
+        # 값 기록 리스트
+        lst_cen = []  # is_center()값 기록. (예: [0,0,1,1,1,1,1,0,0,1,1,1])
+        lst_cen_avg = []  # lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
 
-        #Graph
+        # Graph
         size = 100
-        x_vec = np.linspace(0,1,size+1)[0:-1]
+        x_vec = np.linspace(0, 1, size+1)[0:-1]
         y_vec = np.zeros(size)
         line1 = []
 
-        #화면 주시 실패 설정 값
+        # 화면 주시 실패 설정 값
         concentrate_for_secs = 5
-        
+
         while True:
-            
+
             _, frame = video_capture.read()  # 캠의 화면을 이미지로 자자름
-            
+
             gaze.refresh(frame)
             frame = gaze.annotated_frame()
-            
+
             text = ""
             if gaze.is_blinking():
                 text = "Blinking"
@@ -572,67 +676,94 @@ class ShowVideo(QObject):
             elif gaze.is_center():
                 text = "Looking center"
                 coordinate_info.setText("실시간 시선: 중앙 시선 감지")
-            
-            ##is_center() 값 기록.
+
+            # is_center() 값 기록.
             cen = gaze.is_center()
-            #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
-            
+            # cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
+
             global myUI
-            if cen!=None and myUI.isExit == False: #그래프3
+
+            if cen != None and myUI.isExit == False:  # 그래프3
                 lst_cen.append(cen)
-    
+
                 cen_avg = sum(lst_cen) / len(lst_cen)
                 lst_cen_avg.append(cen_avg)
-        
-    
-                #실시간 그래프
+
+                # 실시간 그래프
                 y_vec[-1] = lst_cen_avg[-1]
-            
-                line1 = live_plotter(x_vec,y_vec,line1,graphW,graphPlt)
-                y_vec = np.append(y_vec[1:],0.0)
+
+                line1 = live_plotter(x_vec, y_vec, line1, graphW, graphPlt)
+                y_vec = np.append(y_vec[1:], 0.0)
                 graphW.canvas.draw()
-                
-                #수치계산
-                global cen_true, cen_true_textbox
-                cen_true=percentage(lst_cen.count(1),len(lst_cen))
-                cen_true_textbox.setText("시선율:" + cen_true)
-                
-                
-    
-                #화면 주시 실패 
+
+                # 수치계산
+                global cen_true, cen_true_textbox, extra
+                cen_true = percentage(lst_cen.count(1), len(lst_cen), extra)
+                cen_true_textbox.setText(
+                    "시선율:" + cen_true +
+                    " 자동설정("+str(autoSetDecided)+"/" +
+                    str(autoSetDecided_time)+")\n문제에 의해 증감한 참여도: "
+                    + str(extra))
+
+                # 화면 주시 실패
                 if sum(lst_cen[concentrate_for_secs:]) == 0:
-                        coordinate_info.setText("실시간 시선: 다른 곳을 보고 있음")
+                    coordinate_info.setText("실시간 시선: 다른 곳을 보고 있음")
+
             else:
                 if myUI.isExit == True:
                     coordinate_info.setText("실시간 시선 인식 일시중지(자리비움)")
                 else:
                     coordinate_info.setText("실시간 시선: 인식 불가 상태")
                     lst_cen.append(False)
-    
+
                     cen_avg = sum(lst_cen) / len(lst_cen)
                     lst_cen_avg.append(cen_avg)
-            
-                    #실시간 그래프
+
+                    # 실시간 그래프
                     y_vec[-1] = lst_cen_avg[-1]
-            
-                    line1 = live_plotter(x_vec,y_vec,line1,graphW,graphPlt)
-                    y_vec = np.append(y_vec[1:],0.0)
+
+                    line1 = live_plotter(x_vec, y_vec, line1, graphW, graphPlt)
+                    y_vec = np.append(y_vec[1:], 0.0)
                     graphW.canvas.draw()
-    
-                
-                
-            cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+
+            cv2.putText(frame, text, (90, 60),
+                        cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
             left_pupil = gaze.pupil_left_coords()
             right_pupil = gaze.pupil_right_coords()
             #cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
             #cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-    
+
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             canvas = detect(gray, frame)
 
             k = cv2.waitKey(1) & 0xff
             # FF는 끝의 8bit만을 이용한다는 뜻으로 ASCII 코드의 0~255값만 이용하겠다는 의미로 해석됨. (NumLock을 켰을때도 마찬가지)
+
+            # ---------------------여기서부터 자동설정 관련------------------------------
+            if(len(problems) > 0 and int(autoSetDecided) >= 10 and int(autoSetDecided_time) >= 10):
+                # 자동설정 여부 및 문제 존재여부 확인
+                global times, breaking
+
+                if(breaking == False):
+                    times = times+1
+
+                if(int(autoSetDecided_time) <= times):
+                    times = 0
+                    figure = cen_true[0:2]
+                    if(figure[1] == "."):
+                        figure = figure[0]
+
+                    if(int(autoSetDecided) > int(figure)):
+
+                        if(problems[0] != None):
+                            autoP_button.setVisible(True)
+                            t = timer2(5)
+                            t.daemon = True
+                            t.start() 
+                            
+
+            # --------------------여기까지 자동설정 관련-----------------------
 
     @pyqtSlot()
     def canny(self):
@@ -640,7 +771,6 @@ class ShowVideo(QObject):
 
 
 class ImageViewer(QWidget):
-    
 
     def __init__(self, parent=None):
         super(ImageViewer, self).__init__(parent)
@@ -674,15 +804,23 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
     def __init__(self):
         super().__init__()
         self.buttons = []
-        
+
         self.initUI()
 
     def initUI(self):
 
-        global chatBox, host, participants, myUI, problems, problem_num, init, mode, checkedP, isExit
-        global points, point_index, pD, push_button1
+        global chatBox, host, participants, myUI, problems, problem_num, init, mode, checkedP, isExit, breaking, extra, clicked
+        global points, point_index, pD, push_button1, autoSetDecided, autoSetDecided_time, times, cen_true, autoP_button
+
+        extra = 0
+        breaking = False
+        clicked = False
+        cen_true = "0"
         points = []
         point_index = 0
+        autoSetDecided = 0
+        autoSetDecided_time = 100
+        times = 0
 
         chatBox = ChatBox()  # 채팅 박스
         host = Host()  # 호스트
@@ -696,7 +834,7 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         mode = None  # 등록, 수정, 미리보기를 구별하기 위한 모드
         checkedP = None  # 체크된 문제를 저장하는 변수
 
-        participants[0].participation = 30  # 참여자 참여도 초기화
+        participants[0].participation = 0  # 참여자 참여도 초기화
         participants[1].participation = 80
         participants[2].participation = 60
         participants[3].participation = 90
@@ -706,20 +844,17 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         participants[1].name = "빌제리안"
         participants[2].name = "첸"
         participants[3].name = "마유"
-        #
-        
+
         image_viewer1 = ImageViewer(self)
         image_viewer1.resize(650, 450)  # 크기조정
         image_viewer1.move(0, 100)  # 위치 조정
         vid.VideoSignal1.connect(image_viewer1.setImage)
 
-        push_button1 = QPushButton('Start',self)  # 스타트 버튼 누르면 웹캠 연결
+        push_button1 = QPushButton('Start', self)  # 스타트 버튼 누르면 웹캠 연결
         push_button1.resize(650, 40)  # 크기조정
         push_button1.move(0, 500)  # 위치 조정
         push_button1.clicked.connect(vid.startVideo)
-        
-        
-        #
+
         problem_button = QPushButton('문제제공', self)  # 문제제공 버튼
         problem_button.resize(175, 100)  # 크기조정
         problem_button.move(650, 700)  # 위치 조정
@@ -738,66 +873,84 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         exit_host.resize(400, 30)
         exit_host.move(10, 650)
         exit_button.clicked.connect(self.exit_set)  # 버튼을 함수와 연결
-        
+
         pixmap = QPixmap('MPAOC.png')
         self.pic = QLabel(self)
-        self.pic.move(0,0)
+        self.pic.move(0, 0)
         self.pic.setPixmap(QPixmap(pixmap))
-        
-        
-        
-#------------------그래프2---------------------
-        global gaze_centered, gaze_centered_avg,graphW,line1,x_vec,y_vec,graphPlt
 
-        graphW=self
-        
-        graphPlt=plt
-        
-        graphW.fig = plt.figure(figsize=(8,4),facecolor='#f0f0f0')
-        #plt.xticks([])
+        autoP_button = QPushButton('자동설정 문제', self)  # 자리비움 버튼
+        autoP_button.setStyleSheet("color: red;"
+                                   "border-style: solid;"
+                                   "border-width: 2px;"
+                                   "border-color: #FA8072;"
+                                   "border-radius: 3px")
+        autoP_button.setVisible(False)
+        autoP_button.resize(100, 100)
+        autoP_button.move(550, 0)
+
+        def giveP(self):
+            global checkedP, mode, breaking, clicked
+            clicked = True
+            breaking = True
+            checkedP = random.choice(problems)
+            mode = "give"  # 모드 설정
+            myUI.window = problem_resister()
+            autoP_button.setVisible(False)
+
+        autoP_button.clicked.connect(giveP)
+
+# ------------------그래프2---------------------
+        global gaze_centered, gaze_centered_avg, graphW, line1, x_vec, y_vec, graphPlt
+
+        graphW = self
+
+        graphPlt = plt
+
+        graphW.fig = plt.figure(figsize=(8, 4), facecolor='#f0f0f0')
+        # plt.xticks([])
 
         self.canvas = FigureCanvasQTAgg(self.fig)
         self.timeInterval = 1.0
-        
+
         main_widget = QWidget(self)
-        main_widget.resize(600,300)
-        main_widget.move(643,0)
+        main_widget.resize(600, 300)
+        main_widget.move(643, 0)
         vbox = QVBoxLayout(main_widget)
-        
-   
 
         # start 누르기 전 그래플를 띄울시 "정의 되지 않음" 에러 해소를 위한 재정의.
         size = 100
-        x_vec = np.linspace(0,1,size+1)[0:-1]
+        x_vec = np.linspace(0, 1, size+1)[0:-1]
         y_vec = np.zeros(size)
         line1 = []
 
         # this is the call to matplotlib that allows dynamic plotting
         plt.ion()
-        
+
         graphW.ax = graphW.fig.add_subplot(111)
         graphW.ax.set_facecolor('#f0f0f0')
         # create a variable for the line so we can later update it
-        graphW.line1, = graphW.ax.plot(x_vec,y_vec,'-o',alpha=0.8, markersize=2)        
-        
-        #update plot label/title
-        #plt.ylabel('')
-        identifier=''
+        graphW.line1, = graphW.ax.plot(
+            x_vec, y_vec, '-o', alpha=0.8, markersize=2)
+
+        # update plot label/title
+        # plt.ylabel('')
+        identifier = ''
         plt.title('Attendence'.format(identifier))
-        graphW.ani = animation.FuncAnimation(self.canvas.figure, self.line1,blit=True, interval=100)
+        graphW.ani = animation.FuncAnimation(
+            self.canvas.figure, self.line1, blit=True, interval=100)
         graphW.canvas.draw()
-        
-        
+
         vbox.addWidget(self.canvas)
-#-----------------------------------
+# -----------------------------------
 
         global coordinate_info
         coordinate_info = QLabel('실시간 시선 감지',
                                  self)
         coordinate_info.move(10, 600)
         coordinate_info.resize(300, 50)
-        
-        global cen_true, cen_true_textbox
+
+        global cen_true_textbox
         cen_true_textbox = QLabel("", self)
         cen_true_textbox.move(10, 670)
         cen_true_textbox.resize(300, 40)
@@ -811,9 +964,9 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         chatBoxLabel = QLabel(chatBox.chatbox)
         chatBoxLabel.resize(525, 400)
         chatting_scroll.setWidget(chatBoxLabel)
-        
+
         pal = QPalette()
-        pal.setColor(QPalette.Background,QColor(200,200,200))
+        pal.setColor(QPalette.Background, QColor(200, 200, 200))
         chatting_scroll.setAutoFillBackground(True)
         chatting_scroll.setPalette(pal)
 # --------------------------------------------------------------
@@ -880,10 +1033,7 @@ if __name__ == '__main__':
     global vid
     vid = ShowVideo()
     vid.moveToThread(thread)  # 웹캠은 스레드로 따로 관리
-    
-    
 
     MyApp()  # 메인 화면 열림
-
 
     sys.exit(app.exec_())
