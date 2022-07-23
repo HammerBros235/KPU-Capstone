@@ -52,8 +52,11 @@ class timer(threading.Thread):
         self.problem = problem
 
     def run(self):
-        global extra, breaking, autoP_button, resister_window
-        time.sleep(self.time)
+        global extra, breaking, autoP_button, resister_window, problem_time_edit2
+        for i in range(self.time):
+            time.sleep(1)
+            problem_time_edit2.setText(str(self.time-i-1))
+        
         if(breaking==True):
             extra = extra - int(self.problem.importance)
             resister_window.close()
@@ -66,7 +69,12 @@ class timer2(threading.Thread):
 
     def run(self):
         global extra, clicked, autoP_button
-        time.sleep(self.time)
+        
+        autoP_button.setText("자동설정 문제\n("+str(self.time)+")")
+        for i in range(self.time):
+            time.sleep(1)
+            autoP_button.setText("자동설정 문제\n("+str(self.time-i-1)+")")
+        
         if(clicked==False):
             extra = extra - 30
             autoP_button.setVisible(False)
@@ -111,12 +119,14 @@ class problem_resister(QWidget):  # 문제 등록 창
             problem_right = QLabel('문제의 정답 : ', self)
             problem_photo = QLabel('사진 첨부하기(선택) : ', self)
             problem_contents = QLabel('문제 내용 : ', self)
+            problem_time = QLabel('제한시간 (초): ', self)
 
             problem_title_edit = QLineEdit(self)  # edit창 (입력받는 곳)
             problem_importance_edit = QLineEdit(self)
             problem_right_edit = QLineEdit(self)
             problem_photo_edit = QPushButton('내부 저장소에서 가져오기', self)  # 사진, 미구현
             problem_contents_edit = QTextEdit(self)
+            problem_time_edit = QLineEdit(self)
 
             problem_contents_edit.resize(600, 120)  # 크기조정
 
@@ -125,12 +135,14 @@ class problem_resister(QWidget):  # 문제 등록 창
             problem_right_edit.move(100, 300)
             problem_photo_edit.move(150, 390)
             problem_contents_edit.move(100, 450)
+            problem_time_edit.move(400,100)
 
             problem_title.move(0, 100)
             problem_importance.move(0, 200)
             problem_right.move(0, 300)
             problem_photo.move(0, 400)
             problem_contents.move(0, 500)
+            problem_time.move(300,100)
 
             def addP(self):  # 문제를 problems에 넣는 함수
                 global problem_info  # 문제 정보
@@ -159,6 +171,13 @@ class problem_resister(QWidget):  # 문제 등록 창
 
                 elif problem_contents_edit.toPlainText() == '':
                     problem_info.setText("문제의 내용을 입력해주세요")
+                    
+                elif problem_time_edit.text().isnumeric() == False:
+                    problem_info.setText("정수의 제한시간을 입력해주세요 (5초이상)")
+                    
+                elif  int(problem_time_edit.text())<=5:
+                    problem_info.setText("최소 5초 이상의 제한시간을 입력해 주세요.")
+                    
 
                 else:  # 문제 정보들 입력
                     problem.title = problem_title_edit.text()
@@ -167,6 +186,7 @@ class problem_resister(QWidget):  # 문제 등록 창
                     problem.importance = problem_importance_edit.text()
                     problem.right = problem_right_edit.text()
                     problem.contents = problem_contents_edit.toPlainText()
+                    problem.time = problem_time_edit.text()
                     problems.append(problem)
                     problem_info.setText("문제를 성공적으로 만들었습니다")
 
@@ -200,13 +220,15 @@ class problem_resister(QWidget):  # 문제 등록 창
             problem_right = QLabel('문제의 정답 : ', self)
             problem_photo = QLabel('사진 첨부하기(선택) : ', self)
             problem_contents = QLabel('문제 내용 : ', self)
+            problem_time = QLabel('제한시간 (초): ', self)
 
             problem_title_edit = QLineEdit(checkedP.title, self)
             problem_importance_edit = QLineEdit(checkedP.importance, self)
             problem_right_edit = QLineEdit(checkedP.right, self)
             problem_photo_edit = QPushButton('내부 저장소에서 가져오기', self)
             problem_contents_edit = QTextEdit(checkedP.contents, self)
-
+            problem_time_edit = QLineEdit(checkedP.time,self)
+            
             problem_contents_edit.resize(600, 120)
 
             problem_title_edit.move(100, 100)
@@ -214,12 +236,14 @@ class problem_resister(QWidget):  # 문제 등록 창
             problem_right_edit.move(100, 300)
             problem_photo_edit.move(150, 390)
             problem_contents_edit.move(100, 450)
+            problem_time_edit.move(400,100)
 
             problem_title.move(0, 100)
             problem_importance.move(0, 200)
             problem_right.move(0, 300)
             problem_photo.move(0, 400)
             problem_contents.move(0, 500)
+            problem_time.move(300,100)
 
             def editP(self):
                 global problem_info
@@ -246,12 +270,19 @@ class problem_resister(QWidget):  # 문제 등록 창
 
                 elif problem_contents_edit.toPlainText() == '':
                     problem_info.setText("문제의 내용을 입력해주세요")
+                    
+                elif problem_time_edit.text().isnumeric() == False:
+                    problem_info.setText("정수의 제한시간을 입력해주세요 (5초이상)")
+                    
+                elif  int(problem_time_edit.text())<=5:
+                    problem_info.setText("최소 5초 이상의 제한시간을 입력해 주세요.")
 
                 else:
                     problem.title = problem_title_edit.text()
                     problem.importance = problem_importance_edit.text()
                     problem.right = problem_right_edit.text()
                     problem.contents = problem_contents_edit.toPlainText()
+                    problem.time = problem_time_edit.text()
                     problem_info.setText("문제를 성공적으로 수정했습니다")
                     myUI.window = problem_main()
 
@@ -265,30 +296,36 @@ class problem_resister(QWidget):  # 문제 등록 창
             problem_importance = QLabel('중요도(%) : ', self)
             problem_right = QLabel('문제의 정답 : ', self)
             problem_contents = QLabel('문제 내용 : ', self)
+            problem_time = QLabel('제한시간 (초): ', self)
+            
 
             problem_title_edit = QLabel(checkedP.title, self)
             problem_importance_edit = QLabel(checkedP.importance, self)
             problem_right_edit = QLabel(
                 checkedP.right+"  /  (실제 화면에서는 정답이 보이지 않고 정답 적는 칸이 있습니다)", self)
             problem_contents_edit = QLabel(checkedP.contents, self)
-
+            problem_time_edit = QLabel(checkedP.time, self)
+            
             problem_contents_edit.resize(600, 120)
 
             problem_title_edit.move(100, 50)
             problem_importance_edit.move(100, 100)
             problem_right_edit.move(100, 150)
             problem_contents_edit.move(100, 200)
+            problem_time_edit.move(400,100)
 
             problem_title.move(0, 50)
             problem_importance.move(0, 100)
             problem_right.move(0, 150)
             problem_contents.move(0, 250)
+            problem_time.move(300,100)
 
             self.setGeometry(200, 400, 600, 400)  # 위치 및 크기 조정
 
         elif mode == "give":  # 출제 코드
+            global problem_time_edit2
             
-            t = timer(5,checkedP)                
+            t = timer(int(checkedP.time),checkedP)                
             t.daemon = True
             t.start()         
             
@@ -298,12 +335,15 @@ class problem_resister(QWidget):  # 문제 등록 창
             problem_importance = QLabel('중요도(%) : ', self)
             problem_right = QLabel('문제의 정답 : ', self)
             problem_contents = QLabel('문제 내용 : ', self)
+            problem_time = QLabel('제한시간 (초): ', self)
             problem_final = QPushButton('제출하기', self)
 
             problem_title_edit = QLabel(checkedP.title, self)
             problem_importance_edit = QLabel(checkedP.importance, self)
             problem_right_edit = QLineEdit(self)
             problem_contents_edit = QLabel(checkedP.contents, self)
+            problem_time_edit2 = QLabel(checkedP.time, self)
+
 
             problem_contents_edit.resize(600, 120)
             problem_final.resize(100, 100)
@@ -312,11 +352,14 @@ class problem_resister(QWidget):  # 문제 등록 창
             problem_importance_edit.move(100, 100)
             problem_right_edit.move(100, 150)
             problem_contents_edit.move(100, 200)
+            problem_time_edit2.move(400,100)
 
             problem_title.move(0, 50)
             problem_importance.move(0, 100)
             problem_right.move(0, 150)
             problem_contents.move(0, 250)
+            problem_time.move(300,100)
+
 
             problem_final.move(500, 300)
 
@@ -369,14 +412,14 @@ class problem_resister(QWidget):  # 문제 등록 창
 
                 global autoSetDecided, autoSetDecided_time
 
-                if (autoSet2.text().isnumeric() == True and autoSet4.text().isnumeric() == True and int(autoSet2.text()) >= 10 and int(autoSet4.text()) >= 10):
+                if (autoSet2.text().isnumeric() == True and autoSet4.text().isnumeric() == True and int(autoSet2.text()) >= 10 and int(autoSet4.text()) >= 300):
                     autoSetDecided = autoSet2.text()
                     autoSetDecided_time = autoSet4.text()
                     autoSetReflection.setText(
                         "참여도 설정이 완료되었습니다.("+autoSet2.text()+"%)")
 
                 else:
-                    autoSetReflection.setText("입력값은 10 이상의 정수여야합니다.")
+                    autoSetReflection.setText("각 입력값은 10, 300 이상의 정수여야합니다.")
 
             autoSetEnd.clicked.connect(autoSetting)
 
@@ -741,7 +784,7 @@ class ShowVideo(QObject):
             # FF는 끝의 8bit만을 이용한다는 뜻으로 ASCII 코드의 0~255값만 이용하겠다는 의미로 해석됨. (NumLock을 켰을때도 마찬가지)
 
             # ---------------------여기서부터 자동설정 관련------------------------------
-            if(len(problems) > 0 and int(autoSetDecided) >= 10 and int(autoSetDecided_time) >= 10):
+            if(len(problems) > 0 and int(autoSetDecided) >= 10 and int(autoSetDecided_time) >= 300):
                 # 자동설정 여부 및 문제 존재여부 확인
                 global times, breaking
 
@@ -751,7 +794,9 @@ class ShowVideo(QObject):
                 if(int(autoSetDecided_time) <= times):
                     times = 0
                     figure = cen_true[0:2]
-                    if(figure[1] == "."):
+                    if len(figure)==1:
+                        figure ="0"
+                    elif(figure[1] == "."):
                         figure = figure[0]
 
                     if(int(autoSetDecided) > int(figure)):
@@ -893,8 +938,9 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
             global checkedP, mode, breaking, clicked
             clicked = True
             breaking = True
-            checkedP = random.choice(problems)
             mode = "give"  # 모드 설정
+            checkedP = random.choice(problems)
+
             myUI.window = problem_resister()
             autoP_button.setVisible(False)
 
