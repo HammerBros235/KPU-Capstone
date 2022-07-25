@@ -734,7 +734,7 @@ class ShowVideo(QObject):
 
                 #lst_cen_avg.append(cen_avg)
                 
-                cen_avg = (cen_avg*i + cen)/(i+1)
+                cen_avg = (cen_avg*i + 1)/(i+1)
                 
                 i = i+1
 
@@ -747,7 +747,7 @@ class ShowVideo(QObject):
 
                 # 수치계산
                 global cen_true, cen_true_textbox, extra
-                cen_true = percentage(lst_cen.count(1), len(lst_cen), extra)
+                cen_true = percentage(cen_avg, 1, extra)
                 cen_true_textbox.setText(
                     "시선율:" + cen_true +
                     " 자동설정("+str(autoSetDecided)+"/" +
@@ -765,8 +765,7 @@ class ShowVideo(QObject):
                     coordinate_info.setText("실시간 시선: 인식 불가 상태")
                     lst_cen.append(False)
 
-                    cen=0
-                    cen_avg = (cen_avg*i + cen)/(i+1)
+                    cen_avg = cen_avg*i/(i+1)
 
                     # 실시간 그래프
                     y_vec[-1] = cen_avg
