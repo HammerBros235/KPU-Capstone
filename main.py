@@ -690,7 +690,7 @@ class ShowVideo(QObject):
         
         lst_cen = []  # is_center()값 기록. (예: [0,0,1,1,1,1,1,0,0,1,1,1])
         #lst_cen_avg = []  # lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
-        
+        i = 1; cen_avg = 0
 
         # Graph
         size = 100
@@ -724,7 +724,7 @@ class ShowVideo(QObject):
 
             # is_center() 값 기록.
             cen = gaze.is_center()
-            # cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
+            #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
 
             global myUI
 
@@ -765,6 +765,7 @@ class ShowVideo(QObject):
                     coordinate_info.setText("실시간 시선: 인식 불가 상태")
                     lst_cen.append(False)
 
+                    cen=0
                     cen_avg = (cen_avg*i + cen)/(i+1)
 
                     # 실시간 그래프
@@ -860,7 +861,7 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
     def initUI(self):
 
         global chatBox, host, participants, myUI, problems, problem_num, init, mode, checkedP, isExit, breaking, extra, clicked
-        global points, point_index, pD, push_button1, autoSetDecided, autoSetDecided_time, times, cen_true, autoP_button, i, avg
+        global points, point_index, pD, push_button1, autoSetDecided, autoSetDecided_time, times, cen_true, autoP_button
 
         extra = 0
         breaking = False
@@ -871,7 +872,7 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         autoSetDecided = 0
         autoSetDecided_time = 100
         times = 0
-        i = 1; avg = 0
+
 
         chatBox = ChatBox()  # 채팅 박스
         host = Host()  # 호스트
@@ -1089,3 +1090,5 @@ if __name__ == '__main__':
     MyApp()  # 메인 화면 열림
 
     sys.exit(app.exec_())
+    
+    camera.release()
