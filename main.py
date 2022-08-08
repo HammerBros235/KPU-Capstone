@@ -360,7 +360,6 @@ class problem_resister(QWidget):  # 문제 등록 창
             problem_contents.move(0, 250)
             problem_time.move(300,100)
 
-
             problem_final.move(500, 300)
 
             self.setGeometry(200, 400, 600, 400)  # 위치 및 크기 조정
@@ -686,8 +685,8 @@ class ShowVideo(QObject):
         global coordinate_info, x_vec, y_vec, line1, size
 
         gaze = GazeTracking()
-        # 값 기록 리스트
         
+        # 값 기록 리스트        
         lst_cen = []  # is_center()값 기록. (예: [0,0,1,1,1,1,1,0,0,1,1,1])
         #lst_cen_avg = []  # lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
         i = 1; cen_avg = 0
@@ -724,10 +723,10 @@ class ShowVideo(QObject):
 
             # is_center() 값 기록.
             cen = gaze.is_center()
+
             #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
 
             global myUI
-
             
             if cen != None and myUI.isExit == False:  # 그래프3
                 lst_cen.append(cen)
@@ -747,7 +746,9 @@ class ShowVideo(QObject):
 
                 # 수치계산
                 global cen_true, cen_true_textbox, extra
+
                 cen_true = percentage(cen_avg, 1, extra)
+                
                 cen_true_textbox.setText(
                     "시선율:" + cen_true +
                     " 자동설정("+str(autoSetDecided)+"/" +
@@ -871,7 +872,6 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         autoSetDecided = 0
         autoSetDecided_time = 100
         times = 0
-
 
         chatBox = ChatBox()  # 채팅 박스
         host = Host()  # 호스트
