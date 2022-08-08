@@ -360,7 +360,6 @@ class problem_resister(QWidget):  # 문제 등록 창
             problem_contents.move(0, 250)
             problem_time.move(300,100)
 
-
             problem_final.move(500, 300)
 
             self.setGeometry(200, 400, 600, 400)  # 위치 및 크기 조정
@@ -686,9 +685,11 @@ class ShowVideo(QObject):
         global coordinate_info, x_vec, y_vec, line1, size
 
         gaze = GazeTracking()
-        # 값 기록 리스트
+        
+        # 값 기록 리스트        
         lst_cen = []  # is_center()값 기록. (예: [0,0,1,1,1,1,1,0,0,1,1,1])
-        lst_cen_avg = []  # lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
+        #lst_cen_avg = []  # lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
+        i = 1; cen_avg = 0
 
         # Graph
         size = 100
@@ -722,18 +723,22 @@ class ShowVideo(QObject):
 
             # is_center() 값 기록.
             cen = gaze.is_center()
-            # cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
+
+            #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
 
             global myUI
-
+            
             if cen != None and myUI.isExit == False:  # 그래프3
                 lst_cen.append(cen)
 
-                cen_avg = sum(lst_cen) / len(lst_cen)
-                lst_cen_avg.append(cen_avg)
+                #lst_cen_avg.append(cen_avg)
+                
+                cen_avg = (cen_avg*i + 1)/(i+1)
+                
+                i = i+1
 
                 # 실시간 그래프
-                y_vec[-1] = lst_cen_avg[-1]
+                y_vec[-1] = cen_avg
 
                 line1 = live_plotter(x_vec, y_vec, line1, graphW, graphPlt)
                 y_vec = np.append(y_vec[1:], 0.0)
@@ -741,7 +746,9 @@ class ShowVideo(QObject):
 
                 # 수치계산
                 global cen_true, cen_true_textbox, extra
-                cen_true = percentage(lst_cen.count(1), len(lst_cen), extra)
+
+                cen_true = percentage(cen_avg, 1, extra)
+                
                 cen_true_textbox.setText(
                     "시선율:" + cen_true +
                     " 자동설정("+str(autoSetDecided)+"/" +
@@ -759,11 +766,10 @@ class ShowVideo(QObject):
                     coordinate_info.setText("실시간 시선: 인식 불가 상태")
                     lst_cen.append(False)
 
-                    cen_avg = sum(lst_cen) / len(lst_cen)
-                    lst_cen_avg.append(cen_avg)
+                    cen_avg = cen_avg*i/(i+1)
 
                     # 실시간 그래프
-                    y_vec[-1] = lst_cen_avg[-1]
+                    y_vec[-1] = cen_avg
 
                     line1 = live_plotter(x_vec, y_vec, line1, graphW, graphPlt)
                     y_vec = np.append(y_vec[1:], 0.0)
@@ -1083,3 +1089,5 @@ if __name__ == '__main__':
     MyApp()  # 메인 화면 열림
 
     sys.exit(app.exec_())
+    
+    camera.release()
