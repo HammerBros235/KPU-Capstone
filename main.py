@@ -774,6 +774,14 @@ class ShowVideo(QObject):
                     line1 = live_plotter(x_vec, y_vec, line1, graphW, graphPlt)
                     y_vec = np.append(y_vec[1:], 0.0)
                     graphW.canvas.draw()
+                    
+                    cen_true = percentage(cen_avg, 1, extra)
+                
+                    cen_true_textbox.setText(
+                    "시선율:" + cen_true +
+                    " 자동설정("+str(autoSetDecided)+"/" +
+                    str(autoSetDecided_time)+")\n문제에 의해 증감한 참여도: "
+                    + str(extra))    
 
             cv2.putText(frame, text, (90, 60),
                         cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
@@ -836,7 +844,7 @@ class ImageViewer(QWidget):
         self.image = QtGui.QImage()
 
     def initUI(self):
-        self.setWindowTitle('Test')
+        self.setWindowTitle('종합설계')
 
     @pyqtSlot(QtGui.QImage)
     def setImage(self, image):
