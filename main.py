@@ -707,7 +707,12 @@ class ShowVideo(QObject):
             frame = gaze.annotated_frame()
 
             text = ""
+            
+            # is_center() 값 기록.
+            cen = gaze.is_center()
+            
             if gaze.is_blinking():
+                cen = False #눈을 감는 경우도 false
                 text = "Blinking"
                 coordinate_info.setText("실시간 시선: 깜박임 감지")
             elif gaze.is_right():
@@ -720,8 +725,8 @@ class ShowVideo(QObject):
                 text = "Looking center"
                 coordinate_info.setText("실시간 시선: 중앙 시선 감지")
 
-            # is_center() 값 기록.
-            cen = gaze.is_center()
+
+            
             # cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
 
             global myUI
