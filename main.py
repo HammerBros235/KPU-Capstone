@@ -957,11 +957,15 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         camera_button.move(400,550)
         
         if camera.open(0, cv2.CAP_DSHOW):
-            camera_button.setText(camera_button.text()+"0")
+            camera_button.setText(camera_button.text()+" 0")
         elif camera.open(1, cv2.CAP_DSHOW):
             camera_button.setText(camera_button.text()+",1")
         elif camera.open(2, cv2.CAP_DSHOW):
-            camera_button.setText(camera_button.text()+",1")
+            camera_button.setText(camera_button.text()+",2")
+        elif camera.open(3, cv2.CAP_DSHOW):
+            camera_button.setText(camera_button.text()+",3")
+        elif camera.open(4, cv2.CAP_DSHOW):
+            camera_button.setText(camera_button.text()+",4")
         
         camera_num = QLabel('사용할 카메라번호:', self)
         camera_num.resize(150,40)
