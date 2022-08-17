@@ -656,6 +656,10 @@ class ShowVideo(QObject):
 
     @pyqtSlot()
     def startVideo(self):
+        
+        global camera_num, camera_num_edit, camera_button
+        
+        
 
         def detect(gray, frame):
 
@@ -665,7 +669,7 @@ class ShowVideo(QObject):
                                      gray.strides[0],
                                      QtGui.QImage.Format_RGB888)
             self.VideoSignal1.emit(qt_image1)
-            push_button1.hide()
+            
             # image_viewer1.move(5, 20)
 
             loop = QEventLoop()
@@ -678,7 +682,28 @@ class ShowVideo(QObject):
         global camera
 
         #video_capture = cv2.VideoCapture(0)
-        video_capture = camera
+        
+        if(camera_num_edit.text().isdigit()):
+            if(int(camera_num_edit.text())==0 and camera.open(0, cv2.CAP_DSHOW)):
+                camera = cv2.VideoCapture(0) 
+            elif(int(camera_num_edit.text())==1 and camera.open(1, cv2.CAP_DSHOW)):
+                camera = cv2.VideoCapture(1)
+            elif(int(camera_num_edit.text())==2 and camera.open(2, cv2.CAP_DSHOW)):
+                camera = cv2.VideoCapture(2)
+            elif(int(camera_num_edit.text())==3 and camera.open(3, cv2.CAP_DSHOW)):
+                camera = cv2.VideoCapture(3)
+            elif(int(camera_num_edit.text())==4 and camera.open(4, cv2.CAP_DSHOW)):
+                camera = cv2.VideoCapture(4)
+                
+            else:
+                camera.open(0, cv2.CAP_DSHOW)
+        
+        push_button1.hide()
+        camera_button.hide()
+        camera_num.hide()
+        camera_num_edit.hide()
+        
+        video_capture = camera        
 
         if ret is False:
             print("카메라 인식 실패")
@@ -837,12 +862,11 @@ class ImageViewer(QWidget):
     def paintEvent(self, event):  # 실제 사각형을 그리는 함수, 이벤트를 받을때마다 동작하는 것 같습니다.
         # 아직 고쳐햐할 부분입니다
         painter = QtGui.QPainter(self)
-        painter.setBrush(QColor(25, 0, 90, 10))
         painter.drawImage(0, 0, self.image)
         self.image = QtGui.QImage()
 
     def initUI(self):
-        self.setWindowTitle('Test')
+        self.setWindowTitle('종합설계')
 
     @pyqtSlot(QtGui.QImage)
     def setImage(self, image):
@@ -925,7 +949,28 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         exit_button = QPushButton('자리비움\n(호스트용)', self)  # 자리비움 버튼
         exit_button.resize(170, 100)
         exit_button.move(995, 700)
-        global exit_host
+        
+        global exit_host, camera_button, camera_num, camera_num_edit
+
+        camera_button = QLabel('사용가능한 카메라번호:', self)
+        camera_button.resize(200,40)
+        camera_button.move(400,550)
+        
+        if camera.open(0, cv2.CAP_DSHOW):
+            camera_button.setText(camera_button.text()+"0")
+        elif camera.open(1, cv2.CAP_DSHOW):
+            camera_button.setText(camera_button.text()+",1")
+        elif camera.open(2, cv2.CAP_DSHOW):
+            camera_button.setText(camera_button.text()+",1")
+        
+        camera_num = QLabel('사용할 카메라번호:', self)
+        camera_num.resize(150,40)
+        camera_num.move(400,600)
+        
+        camera_num_edit = QLineEdit(self)
+        camera_num_edit.resize(40,30)
+        camera_num_edit.move(510,600)
+        
         exit_host = QLabel('호스트) 자리비움 비활성화 상태', self)  # 자리비움 상황
         exit_host.resize(400, 30)
         exit_host.move(10, 650)
