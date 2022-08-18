@@ -693,10 +693,11 @@ class ShowVideo(QObject):
             elif(int(camera_num_edit.text())==3 and camera.open(3, cv2.CAP_DSHOW)):
                 camera = cv2.VideoCapture(3)
             elif(int(camera_num_edit.text())==4 and camera.open(4, cv2.CAP_DSHOW)):
-                camera = cv2.VideoCapture(4)
-                
+                camera = cv2.VideoCapture(4)    
             else:
-                camera.open(0, cv2.CAP_DSHOW)
+                camera = cv2.VideoCapture(0) 
+        else:
+            camera = cv2.VideoCapture(0) 
         
         push_button1.hide()
         camera_button.hide()
@@ -712,9 +713,10 @@ class ShowVideo(QObject):
 
         gaze = GazeTracking()
         # 값 기록 리스트
-        lst_cen = []  # is_center()값 기록. (예: [0,0,1,1,1,1,1,0,0,1,1,1])
-        lst_cen_avg = []  # lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
-
+        #lst_cen = []  # is_center()값 기록. (예: [0,0,1,1,1,1,1,0,0,1,1,1])
+        #lst_cen_avg = []  # lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
+        i = 1; cen_avg = 0
+        
         # Graph
         size = 100
         x_vec = np.linspace(0, 1, size+1)[0:-1]
@@ -735,9 +737,10 @@ class ShowVideo(QObject):
             
             # is_center() 값 기록.
             cen = gaze.is_center()
-            
+            #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
+                
             if gaze.is_blinking():
-                cen = False #눈을 감는 경우도 false
+                #cen = False #눈을 감는 경우도 false
                 text = "Blinking"
                 coordinate_info.setText("실시간 시선: 깜박임 감지")
             elif gaze.is_right():
@@ -750,20 +753,16 @@ class ShowVideo(QObject):
                 text = "Looking center"
                 coordinate_info.setText("실시간 시선: 중앙 시선 감지")
 
-
-            
-            # cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
-
             global myUI
 
             if cen != None and myUI.isExit == False:  # 그래프3
-                lst_cen.append(cen)
+                #lst_cen.append(cen)
 
-                cen_avg = sum(lst_cen) / len(lst_cen)
-                lst_cen_avg.append(cen_avg)
+                cen_avg = (cen_avg*i + cen)/(i+1)
+                i = i+1
 
                 # 실시간 그래프
-                y_vec[-1] = lst_cen_avg[-1]
+                y_vec[-1] = cen_avg
 
                 line1 = live_plotter(x_vec, y_vec, line1, graphW, graphPlt)
                 y_vec = np.append(y_vec[1:], 0.0)
@@ -771,7 +770,7 @@ class ShowVideo(QObject):
 
                 # 수치계산
                 global cen_true, cen_true_textbox, extra
-                cen_true = percentage(lst_cen.count(1), len(lst_cen), extra)
+                cen_true = percentage(cen_avg, 1, extra)
                 cen_true_textbox.setText(
                     "시선율:" + cen_true +
                     " 자동설정("+str(autoSetDecided)+"/" +
@@ -779,27 +778,26 @@ class ShowVideo(QObject):
                     + str(extra))
 
                 # 화면 주시 실패
-                if sum(lst_cen[concentrate_for_secs:]) == 0:
-                    coordinate_info.setText("실시간 시선: 다른 곳을 보고 있음")
+                #if sum(lst_cen[concentrate_for_secs:]) == 0:
+                #    coordinate_info.setText("실시간 시선: 다른 곳을 보고 있음")
 
             else:
                 if myUI.isExit == True:
                     coordinate_info.setText("실시간 시선 인식 일시중지(자리비움)")
                 else:
                     coordinate_info.setText("실시간 시선: 인식 불가 상태")
-                    lst_cen.append(False)
+                    #lst_cen.append(False)
 
-                    cen_avg = sum(lst_cen) / len(lst_cen)
-                    lst_cen_avg.append(cen_avg)
+                    cen_avg = cen_avg*i/(i+1)
 
                     # 실시간 그래프
-                    y_vec[-1] = lst_cen_avg[-1]
+                    y_vec[-1] = cen_avg
 
                     line1 = live_plotter(x_vec, y_vec, line1, graphW, graphPlt)
                     y_vec = np.append(y_vec[1:], 0.0)
                     graphW.canvas.draw()
                     
-                    cen_true = percentage(lst_cen.count(1), len(lst_cen), extra)
+                    cen_true = percentage(cen_avg, 1, extra)
                     cen_true_textbox.setText(
                     "시선율:" + cen_true +
                     " 자동설정("+str(autoSetDecided)+"/" +
@@ -958,17 +956,17 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         
         if camera.open(0, cv2.CAP_DSHOW):
             camera_button.setText(camera_button.text()+" 0")
-        elif camera.open(1, cv2.CAP_DSHOW):
+        if camera.open(1, cv2.CAP_DSHOW):
             camera_button.setText(camera_button.text()+",1")
-        elif camera.open(2, cv2.CAP_DSHOW):
+        if camera.open(2, cv2.CAP_DSHOW):
             camera_button.setText(camera_button.text()+",2")
-        elif camera.open(3, cv2.CAP_DSHOW):
+        if camera.open(3, cv2.CAP_DSHOW):
             camera_button.setText(camera_button.text()+",3")
-        elif camera.open(4, cv2.CAP_DSHOW):
+        if camera.open(4, cv2.CAP_DSHOW):
             camera_button.setText(camera_button.text()+",4")
         
         camera_num = QLabel('사용할 카메라번호:', self)
-        camera_num.resize(150,40)
+        camera_num.resize(300,40)
         camera_num.move(400,600)
         
         camera_num_edit = QLineEdit(self)
@@ -1144,3 +1142,5 @@ if __name__ == '__main__':
     MyApp()  # 메인 화면 열림
 
     sys.exit(app.exec_())
+    
+    camera.release()
