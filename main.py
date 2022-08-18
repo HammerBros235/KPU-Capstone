@@ -687,7 +687,7 @@ class ShowVideo(QObject):
         gaze = GazeTracking()
         
         # 값 기록 리스트        
-        lst_cen = []  # is_center()값 기록. (예: [0,0,1,1,1,1,1,0,0,1,1,1])
+        #lst_cen = []  # is_center()값 기록. (예: [0,0,1,1,1,1,1,0,0,1,1,1])
         #lst_cen_avg = []  # lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
         i = 1; cen_avg = 0
 
@@ -722,14 +722,14 @@ class ShowVideo(QObject):
                 coordinate_info.setText("실시간 시선: 중앙 시선 감지")
 
             # is_center() 값 기록.
-            cen = gaze.is_center()
+            #cen = gaze.is_center()
 
-            #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
+            cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
 
             global myUI
             
             if cen != None and myUI.isExit == False:  # 그래프3
-                lst_cen.append(cen)
+                #lst_cen.append(cen)
 
                 #lst_cen_avg.append(cen_avg)
                 
@@ -756,15 +756,15 @@ class ShowVideo(QObject):
                     + str(extra))
 
                 # 화면 주시 실패
-                if sum(lst_cen[concentrate_for_secs:]) == 0:
-                    coordinate_info.setText("실시간 시선: 다른 곳을 보고 있음")
+                #if sum(lst_cen[concentrate_for_secs:]) == 0:
+                #    coordinate_info.setText("실시간 시선: 다른 곳을 보고 있음")
 
             else:
                 if myUI.isExit == True:
                     coordinate_info.setText("실시간 시선 인식 일시중지(자리비움)")
                 else:
                     coordinate_info.setText("실시간 시선: 인식 불가 상태")
-                    lst_cen.append(False)
+                    #lst_cen.append(False)
 
                     cen_avg = cen_avg*i/(i+1)
 
