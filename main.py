@@ -722,9 +722,8 @@ class ShowVideo(QObject):
                 coordinate_info.setText("실시간 시선: 중앙 시선 감지")
 
             # is_center() 값 기록.
-            #cen = gaze.is_center()
-
-            cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
+            cen = gaze.is_center()
+            #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
 
             global myUI
             
@@ -733,7 +732,10 @@ class ShowVideo(QObject):
 
                 #lst_cen_avg.append(cen_avg)
                 
-                cen_avg = (cen_avg*i + 1)/(i+1)
+                cen_avg = (cen_avg*i + cen)/(i+1)
+                
+                #print(cen_avg)
+                #print(cen)
                 
                 i = i+1
 
@@ -939,7 +941,7 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         autoP_button.setVisible(False)
         autoP_button.resize(100, 100)
         autoP_button.move(550, 0)
-
+        
         def giveP(self):
             global checkedP, mode, breaking, clicked
             clicked = True
