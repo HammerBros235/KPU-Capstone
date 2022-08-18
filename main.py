@@ -955,22 +955,22 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         
         if camera.open(0, cv2.CAP_DSHOW):
             camera_button.setText(camera_button.text()+" 0")
-        elif camera.open(1, cv2.CAP_DSHOW):
+        if camera.open(1, cv2.CAP_DSHOW):
             camera_button.setText(camera_button.text()+",1")
-        elif camera.open(2, cv2.CAP_DSHOW):
+        if camera.open(2, cv2.CAP_DSHOW):
             camera_button.setText(camera_button.text()+",2")
-        elif camera.open(3, cv2.CAP_DSHOW):
+        if camera.open(3, cv2.CAP_DSHOW):
             camera_button.setText(camera_button.text()+",3")
-        elif camera.open(4, cv2.CAP_DSHOW):
+        if camera.open(4, cv2.CAP_DSHOW):
             camera_button.setText(camera_button.text()+",4")
         
         camera_num = QLabel('사용할 카메라번호:', self)
-        camera_num.resize(150,40)
+        camera_num.resize(300,40)
         camera_num.move(400,600)
         
         camera_num_edit = QLineEdit(self)
         camera_num_edit.resize(40,30)
-        camera_num_edit.move(510,600)
+        camera_num_edit.move(550,600)
         
         exit_host = QLabel('호스트) 자리비움 비활성화 상태', self)  # 자리비움 상황
         exit_host.resize(400, 30)
