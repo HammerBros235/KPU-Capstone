@@ -360,6 +360,7 @@ class problem_resister(QWidget):  # 문제 등록 창
             problem_contents.move(0, 250)
             problem_time.move(300,100)
 
+
             problem_final.move(500, 300)
 
             self.setGeometry(200, 400, 600, 400)  # 위치 및 크기 조정
@@ -655,6 +656,10 @@ class ShowVideo(QObject):
 
     @pyqtSlot()
     def startVideo(self):
+        
+        global camera_num, camera_num_edit, camera_button
+        
+        
 
         def detect(gray, frame):
 
@@ -664,7 +669,7 @@ class ShowVideo(QObject):
                                      gray.strides[0],
                                      QtGui.QImage.Format_RGB888)
             self.VideoSignal1.emit(qt_image1)
-            push_button1.hide()
+            
             # image_viewer1.move(5, 20)
 
             loop = QEventLoop()
@@ -677,7 +682,28 @@ class ShowVideo(QObject):
         global camera
 
         #video_capture = cv2.VideoCapture(0)
-        video_capture = camera
+        
+        if(camera_num_edit.text().isdigit()):
+            if(int(camera_num_edit.text())==0 and camera.open(0, cv2.CAP_DSHOW)):
+                camera = cv2.VideoCapture(0) 
+            elif(int(camera_num_edit.text())==1 and camera.open(1, cv2.CAP_DSHOW)):
+                camera = cv2.VideoCapture(1)
+            elif(int(camera_num_edit.text())==2 and camera.open(2, cv2.CAP_DSHOW)):
+                camera = cv2.VideoCapture(2)
+            elif(int(camera_num_edit.text())==3 and camera.open(3, cv2.CAP_DSHOW)):
+                camera = cv2.VideoCapture(3)
+            elif(int(camera_num_edit.text())==4 and camera.open(4, cv2.CAP_DSHOW)):
+                camera = cv2.VideoCapture(4)
+                
+            else:
+                camera.open(0, cv2.CAP_DSHOW)
+        
+        push_button1.hide()
+        camera_button.hide()
+        camera_num.hide()
+        camera_num_edit.hide()
+        
+        video_capture = camera        
 
         if ret is False:
             print("카메라 인식 실패")
@@ -685,12 +711,11 @@ class ShowVideo(QObject):
         global coordinate_info, x_vec, y_vec, line1, size
 
         gaze = GazeTracking()
-        
-        # 값 기록 리스트        
+        # 값 기록 리스트
         #lst_cen = []  # is_center()값 기록. (예: [0,0,1,1,1,1,1,0,0,1,1,1])
         #lst_cen_avg = []  # lst_cen의 평균값 기록. (예: [0, 0.5, 0.33, 0.25])
         i = 1; cen_avg = 0
-
+        
         # Graph
         size = 100
         x_vec = np.linspace(0, 1, size+1)[0:-1]
@@ -708,7 +733,13 @@ class ShowVideo(QObject):
             frame = gaze.annotated_frame()
 
             text = ""
+            
+            # is_center() 값 기록.
+            cen = gaze.is_center()
+            #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
+                
             if gaze.is_blinking():
+                #cen = False #눈을 감는 경우도 false
                 text = "Blinking"
                 coordinate_info.setText("실시간 시선: 깜박임 감지")
             elif gaze.is_right():
@@ -721,22 +752,12 @@ class ShowVideo(QObject):
                 text = "Looking center"
                 coordinate_info.setText("실시간 시선: 중앙 시선 감지")
 
-            # is_center() 값 기록.
-            cen = gaze.is_center()
-            #cen = np.random.choice([0,1])  #테스트용 0,1 랜덤 값
-
             global myUI
-            
+
             if cen != None and myUI.isExit == False:  # 그래프3
                 #lst_cen.append(cen)
 
-                #lst_cen_avg.append(cen_avg)
-                
                 cen_avg = (cen_avg*i + cen)/(i+1)
-                
-                #print(cen_avg)
-                #print(cen)
-                
                 i = i+1
 
                 # 실시간 그래프
@@ -748,9 +769,7 @@ class ShowVideo(QObject):
 
                 # 수치계산
                 global cen_true, cen_true_textbox, extra
-
                 cen_true = percentage(cen_avg, 1, extra)
-                
                 cen_true_textbox.setText(
                     "시선율:" + cen_true +
                     " 자동설정("+str(autoSetDecided)+"/" +
@@ -769,6 +788,7 @@ class ShowVideo(QObject):
                     #lst_cen.append(False)
 
                     cen_avg = cen_avg*i/(i+1)
+                    lst_cen_avg.append(cen_avg)
 
                     # 실시간 그래프
                     y_vec[-1] = cen_avg
@@ -776,6 +796,13 @@ class ShowVideo(QObject):
                     line1 = live_plotter(x_vec, y_vec, line1, graphW, graphPlt)
                     y_vec = np.append(y_vec[1:], 0.0)
                     graphW.canvas.draw()
+                    
+                    cen_true = percentage(lst_cen.count(1), len(lst_cen), extra)
+                    cen_true_textbox.setText(
+                    "시선율:" + cen_true +
+                    " 자동설정("+str(autoSetDecided)+"/" +
+                    str(autoSetDecided_time)+")\n문제에 의해 증감한 참여도: "
+                    + str(extra))
 
             cv2.putText(frame, text, (90, 60),
                         cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
@@ -833,12 +860,11 @@ class ImageViewer(QWidget):
     def paintEvent(self, event):  # 실제 사각형을 그리는 함수, 이벤트를 받을때마다 동작하는 것 같습니다.
         # 아직 고쳐햐할 부분입니다
         painter = QtGui.QPainter(self)
-        painter.setBrush(QColor(25, 0, 90, 10))
         painter.drawImage(0, 0, self.image)
         self.image = QtGui.QImage()
 
     def initUI(self):
-        self.setWindowTitle('Test')
+        self.setWindowTitle('종합설계')
 
     @pyqtSlot(QtGui.QImage)
     def setImage(self, image):
@@ -921,7 +947,32 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         exit_button = QPushButton('자리비움\n(호스트용)', self)  # 자리비움 버튼
         exit_button.resize(170, 100)
         exit_button.move(995, 700)
-        global exit_host
+        
+        global exit_host, camera_button, camera_num, camera_num_edit
+
+        camera_button = QLabel('사용가능한 카메라번호:', self)
+        camera_button.resize(200,40)
+        camera_button.move(400,550)
+        
+        if camera.open(0, cv2.CAP_DSHOW):
+            camera_button.setText(camera_button.text()+" 0")
+        elif camera.open(1, cv2.CAP_DSHOW):
+            camera_button.setText(camera_button.text()+",1")
+        elif camera.open(2, cv2.CAP_DSHOW):
+            camera_button.setText(camera_button.text()+",2")
+        elif camera.open(3, cv2.CAP_DSHOW):
+            camera_button.setText(camera_button.text()+",3")
+        elif camera.open(4, cv2.CAP_DSHOW):
+            camera_button.setText(camera_button.text()+",4")
+        
+        camera_num = QLabel('사용할 카메라번호:', self)
+        camera_num.resize(150,40)
+        camera_num.move(400,600)
+        
+        camera_num_edit = QLineEdit(self)
+        camera_num_edit.resize(40,30)
+        camera_num_edit.move(510,600)
+        
         exit_host = QLabel('호스트) 자리비움 비활성화 상태', self)  # 자리비움 상황
         exit_host.resize(400, 30)
         exit_host.move(10, 650)
@@ -941,7 +992,7 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         autoP_button.setVisible(False)
         autoP_button.resize(100, 100)
         autoP_button.move(550, 0)
-        
+
         def giveP(self):
             global checkedP, mode, breaking, clicked
             clicked = True
