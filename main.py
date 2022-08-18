@@ -788,7 +788,6 @@ class ShowVideo(QObject):
                     #lst_cen.append(False)
 
                     cen_avg = cen_avg*i/(i+1)
-                    lst_cen_avg.append(cen_avg)
 
                     # 실시간 그래프
                     y_vec[-1] = cen_avg
@@ -797,7 +796,7 @@ class ShowVideo(QObject):
                     y_vec = np.append(y_vec[1:], 0.0)
                     graphW.canvas.draw()
                     
-                    cen_true = percentage(lst_cen.count(1), len(lst_cen), extra)
+                    cen_true = percentage(cen_avg, 1, extra)
                     cen_true_textbox.setText(
                     "시선율:" + cen_true +
                     " 자동설정("+str(autoSetDecided)+"/" +
