@@ -684,15 +684,15 @@ class ShowVideo(QObject):
         #video_capture = cv2.VideoCapture(0)
         
         if(camera_num_edit.text().isdigit()):
-            if(int(camera_num_edit.text())==0 and camera.open(0, cv2.CAP_DSHOW)):
+            if(int(camera_num_edit.text())==0 and cv2.VideoCapture(0).isOpened()):
                 camera = cv2.VideoCapture(0) 
-            elif(int(camera_num_edit.text())==1 and camera.open(1, cv2.CAP_DSHOW)):
+            elif(int(camera_num_edit.text())==1 and cv2.VideoCapture(1).isOpened()):
                 camera = cv2.VideoCapture(1)
-            elif(int(camera_num_edit.text())==2 and camera.open(2, cv2.CAP_DSHOW)):
+            elif(int(camera_num_edit.text())==2 and cv2.VideoCapture(2).isOpened()):
                 camera = cv2.VideoCapture(2)
-            elif(int(camera_num_edit.text())==3 and camera.open(3, cv2.CAP_DSHOW)):
+            elif(int(camera_num_edit.text())==3 and cv2.VideoCapture(3).isOpened()):
                 camera = cv2.VideoCapture(3)
-            elif(int(camera_num_edit.text())==4 and camera.open(4, cv2.CAP_DSHOW)):
+            elif(int(camera_num_edit.text())==4 and cv2.VideoCapture(4).isOpened()):
                 camera = cv2.VideoCapture(4)    
             else:
                 camera = cv2.VideoCapture(0) 
@@ -954,15 +954,19 @@ class MyApp(QWidget):  # 최초의 윈도우이자 (웹캠영상, 채팅, 버튼
         camera_button.resize(200,40)
         camera_button.move(400,550)
         
-        if camera.open(0, cv2.CAP_DSHOW):
+        if cv2.VideoCapture(0).isOpened():
             camera_button.setText(camera_button.text()+" 0")
-        if camera.open(1, cv2.CAP_DSHOW):
+            
+        if cv2.VideoCapture(1).isOpened():
             camera_button.setText(camera_button.text()+",1")
-        if camera.open(2, cv2.CAP_DSHOW):
+            
+        if cv2.VideoCapture(2).isOpened():
             camera_button.setText(camera_button.text()+",2")
-        if camera.open(3, cv2.CAP_DSHOW):
+            
+        if cv2.VideoCapture(3).isOpened():
             camera_button.setText(camera_button.text()+",3")
-        if camera.open(4, cv2.CAP_DSHOW):
+            
+        if cv2.VideoCapture(4).isOpened():
             camera_button.setText(camera_button.text()+",4")
         
         camera_num = QLabel('사용할 카메라번호:', self)
