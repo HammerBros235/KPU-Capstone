@@ -823,16 +823,20 @@ class ShowVideo(QObject):
                 # 자동설정 여부 및 문제 존재여부 확인
                 global times, breaking
 
-                if(breaking == False):
+                if(myUI.isExit == False and breaking==False):
                     times = times+1
 
                 if(int(autoSetDecided_time) <= times):
                     times = 0
-                    figure = cen_true[0:2]
-                    if len(figure)==1:
-                        figure ="0"
-                    elif(figure[1] == "."):
-                        figure = figure[0]
+                    if cen_true[0:3] =="100" :
+                        figure = "100"
+                    else:
+                        figure = cen_true[0:2]
+                        
+                        if len(figure)==1:
+                            figure ="0"
+                        elif(figure[1] == "."):
+                            figure = figure[0]
 
                     if(int(autoSetDecided) > int(figure)):
 
