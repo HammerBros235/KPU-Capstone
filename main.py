@@ -1,4 +1,3 @@
-# 지금은 개발중이므로 한 공간에 넣어놓고 하지만, 완성될 쯤에는 클래스별로 파일로 쪼갠 후, import로 연결시킬 생각압니다.
 
 import cv2
 import sys
@@ -412,14 +411,14 @@ class problem_resister(QWidget):  # 문제 등록 창
 
                 global autoSetDecided, autoSetDecided_time
 
-                if (autoSet2.text().isnumeric() == True and autoSet4.text().isnumeric() == True and int(autoSet2.text()) >= 10 and int(autoSet4.text()) >= 300):
+                if (autoSet2.text().isnumeric() == True and autoSet4.text().isnumeric() == True and int(autoSet2.text()) >= 10 ):
                     autoSetDecided = autoSet2.text()
                     autoSetDecided_time = autoSet4.text()
                     autoSetReflection.setText(
                         "참여도 설정이 완료되었습니다.("+autoSet2.text()+"%)")
 
                 else:
-                    autoSetReflection.setText("각 입력값은 10, 300 이상의 정수여야합니다.")
+                    autoSetReflection.setText("시선율 입력값은 10 이상이어야합니다.")
 
             autoSetEnd.clicked.connect(autoSetting)
 
@@ -819,7 +818,7 @@ class ShowVideo(QObject):
             # FF는 끝의 8bit만을 이용한다는 뜻으로 ASCII 코드의 0~255값만 이용하겠다는 의미로 해석됨. (NumLock을 켰을때도 마찬가지)
 
             # ---------------------여기서부터 자동설정 관련------------------------------
-            if(len(problems) > 0 and int(autoSetDecided) >= 10 and int(autoSetDecided_time) >= 300):
+            if(len(problems) > 0 and int(autoSetDecided) >= 10 ): #10은 지우시면 안됩니다. 자동설정을 했는지 확인용
                 # 자동설정 여부 및 문제 존재여부 확인
                 global times, breaking
 
@@ -1142,6 +1141,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     thread = QThread()  # 스레드
+    thread.daemon = True
     thread.start()
     global vid
     vid = ShowVideo()
