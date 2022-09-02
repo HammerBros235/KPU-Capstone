@@ -495,8 +495,7 @@ class problem_main(QMainWindow):  # 문제 윈도우
                     problems.remove(problem)
 
         def problem_edit_layout(self):  # 수정 함수
-            global mode
-            global checkedP
+            global mode, checkedP
 
             for problem in problems:
                 if problem.radio.isChecked():
@@ -506,8 +505,14 @@ class problem_main(QMainWindow):  # 문제 윈도우
                     break  # 체크된 문제를 찾은 후 루프 탈출
 
         def problem_question_layout(self):  # 출제 함수
-            mode = "give"  # 모드 설정
-            myUI.window = problem_resister()
+            global mode, checkedP
+            
+            for problem in problems:
+                if problem.radio.isChecked():
+                    mode = "give"  # 모드 설정
+                    checkedP = problem
+                    myUI.window = problem_resister()
+                    break  # 체크된 문제를 찾은 후 루프 탈출
 
         def problem_preview_layout(self):  # 미리보기 함수
             global mode
