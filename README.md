@@ -12,4 +12,4 @@
 ---
 
 #### - 이 프로젝트는 FOSS인 gaze_tracking을 사용합니다. 아래 파일들을 clone하여 root directory에 넣어주세요.
-https://github.com/antoinelame/GazeTracking
+- https://github.com/antoinelame/GazeTracking
