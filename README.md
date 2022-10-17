@@ -12,3 +12,5 @@
 
 #### - 이 프로젝트는 FOSS인 gaze_tracking을 사용합니다. 아래 파일들을 clone하여 root directory에 넣어주세요.
 - https://github.com/antoinelame/GazeTracking
+- 해당 (gaze_tracking)폴더 내부에 shape_predictor_68_face_landmarks.dat이 담긴 trained_models 폴더도 필요합니다. 
+- 용량문제로 업로드하지 못하지만, 웹에서 쉽게 찾으실 수 있습니다.
